@@ -1,13 +1,13 @@
 package NotableDeveloper.rank;
 
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 import javax.persistence.*;
 
 @Entity
 @Table
-@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 public class Course {
     @Id
@@ -18,7 +18,7 @@ public class Course {
     private String title;
 
     @Column(nullable = false)
-    private int year;
+    private int offeredYear;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
