@@ -1,9 +1,14 @@
 package NotableDeveloper.rank;
 
+import lombok.Builder;
+import lombok.Getter;
+
 import javax.persistence.*;
 
 @Entity
 @Table
+@Builder
+@Getter
 public class Course {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
