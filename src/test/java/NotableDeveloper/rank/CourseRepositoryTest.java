@@ -53,16 +53,40 @@ public class CourseRepositoryTest {
                     course.getSemester(),
                     course.getCode()
             )){
-                /*
-                    To Do :
-                    기존에 있던 강의 데이터 갱신
-                 */
+                Course updateCourse = courseRepository.findByTitleAndOfferedYearAndSemesterAndCode(
+                        course.getTitle(),
+                        course.getOfferedYear(),
+                        course.getSemester(),
+                        course.getCode()
+                );
+
+                int updateCount = updateCourse.getCount() + 1;
+                float updateRating = updateCourse.getRating() + course.getRating();
+
+                updateCourse.setCount(updateCount);
+                updateCourse.setRating(updateRating);
+
+                courseRepository.save(updateCourse);
             }
 
             else courseRepository.save(course);
-
         }
 
+        Course course = courses.get(0);
 
+        Course findCourse = courseRepository.findByTitleAndOfferedYearAndSemesterAndCode(
+                course.getTitle(),
+                course.getOfferedYear(),
+                course.getSemester(),
+                course.getCode()
+        );
+
+        Assertions.assertEquals("객체지향 프로그래밍", findCourse.getTitle());
+        Assertions.assertEquals(2023, findCourse.getOfferedYear());
+        Assertions.assertEquals(Semester.FIRST, findCourse.getSemester());
+        Assertions.assertEquals("12345678", findCourse.getCode());
+        Assertions.assertEquals(237.0F, findCourse.getRating());
+        Assertions.assertEquals(Tier.F, findCourse.getTier());
+        Assertions.assertEquals(3, findCourse.getCount());
     }
 }
