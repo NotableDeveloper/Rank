@@ -6,6 +6,7 @@ import javax.persistence.*;
 @Entity
 @Table
 @Getter
+@Setter
 @NoArgsConstructor
 public class Course {
     @Id
@@ -35,12 +36,12 @@ public class Course {
     @Column(nullable = false)
     private int count;
 
-    public Course(String title, int year, Semester semester, String code){
+    public Course(String title, int year, Semester semester, String code, float rating){
         this.title = title;
         this.offeredYear = year;
         this.semester = semester;
         this.code = code;
-        this.rating = 0.0F;
+        this.rating = rating;
         this.tier = Tier.F;
         this.count = 1;
     }

@@ -21,9 +21,9 @@ public class CourseRepositoryTest {
     void setUp(){
         courses = new ArrayList<>();
 
-        courses.add(new Course("객체지향 프로그래밍", 2023, Semester.FIRST, "12345678"));
-        courses.add(new Course("객체지향 프로그래밍", 2023, Semester.FIRST, "12345678"));
-        courses.add(new Course("객체지향 프로그래밍", 2023, Semester.FIRST, "12345678"));
+        courses.add(new Course("객체지향 프로그래밍", 2023, Semester.FIRST, "12345678", 79.00F));
+        courses.add(new Course("객체지향 프로그래밍", 2023, Semester.FIRST, "12345678", 76.00F));
+        courses.add(new Course("객체지향 프로그래밍", 2023, Semester.FIRST, "12345678", 82.00F));
     }
     @Test
     @DisplayName("객체지향 프로그래밍 강의를 하나 등록한다")
@@ -46,14 +46,23 @@ public class CourseRepositoryTest {
     @Test
     @DisplayName("여러 분반으로 개설되는 강의는 DB에 하나만 등록되어야 한다")
     public void 여러분반_강의등록_테스트(){
-        for(Course course : courses){
-            /*
-                To Do :
-                등록하려는 강의가 이미 DB 내에 있는 지를 확인하는 코드 작성하기
-                (DB 내에 강의명, 년도, 학기, 과목 코드가 동일한 것이 있는 지를 확인하는 메서드 작성)
-             */
-            courseRepository.save(course);
+        for(Course course : courses) {
+            if (courseRepository.existsByTitleAndOfferedYearAndSemesterAndCode(
+                    course.getTitle(),
+                    course.getOfferedYear(),
+                    course.getSemester(),
+                    course.getCode()
+            )){
+                /*
+                    To Do :
+                    기존에 있던 강의 데이터 갱신
+                 */
+            }
+
+            else courseRepository.save(course);
+
         }
+
 
     }
 }
