@@ -1,5 +1,9 @@
 package NotableDeveloper.rank;
 
+import NotableDeveloper.rank.domain.entity.Course;
+import NotableDeveloper.rank.domain.enums.Semester;
+import NotableDeveloper.rank.domain.enums.Tier;
+import NotableDeveloper.rank.repository.CourseRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

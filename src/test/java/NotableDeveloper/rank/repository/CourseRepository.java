@@ -1,5 +1,7 @@
-package NotableDeveloper.rank;
+package NotableDeveloper.rank.repository;
 
+import NotableDeveloper.rank.domain.entity.Course;
+import NotableDeveloper.rank.domain.enums.Semester;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CourseRepository extends JpaRepository<Course, Long> {

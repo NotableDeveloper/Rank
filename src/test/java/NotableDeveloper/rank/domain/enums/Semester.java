@@ -1,4 +1,4 @@
-package NotableDeveloper.rank;
+package NotableDeveloper.rank.domain.enums;
 
 public enum Semester {
     FIRST("1학기"),

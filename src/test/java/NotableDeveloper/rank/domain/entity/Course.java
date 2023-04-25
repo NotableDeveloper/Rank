@@ -1,5 +1,7 @@
-package NotableDeveloper.rank;
+package NotableDeveloper.rank.domain.entity;
 
+import NotableDeveloper.rank.domain.enums.Semester;
+import NotableDeveloper.rank.domain.enums.Tier;
 import lombok.*;
 import javax.persistence.*;
 
