@@ -21,6 +21,7 @@ public class Professor {
     private String name;
 
     @Column(nullable = false)
+    @OneToOne
     private Department department;
 
     @Column(nullable = false)
