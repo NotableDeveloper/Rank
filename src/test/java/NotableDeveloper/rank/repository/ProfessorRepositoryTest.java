@@ -9,7 +9,7 @@ import java.util.ArrayList;
 @DataJpaTest
 public class ProfessorRepositoryTest {
     @Autowired
-    ProferssorRepository proferssorRepository;
+    ProfessorRepository proferssorRepository;
     static ArrayList<Professor> professors;
 }
 
