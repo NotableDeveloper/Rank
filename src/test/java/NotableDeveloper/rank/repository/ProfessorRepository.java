@@ -1,4 +1,6 @@
 package NotableDeveloper.rank.repository;
 
-public interface ProfessorRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface ProfessorRepository extends JpaRepository {
 }
