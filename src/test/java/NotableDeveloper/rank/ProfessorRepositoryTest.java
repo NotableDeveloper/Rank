@@ -2,7 +2,6 @@ package NotableDeveloper.rank;
 
 import NotableDeveloper.rank.domain.entity.Department;
 import NotableDeveloper.rank.domain.entity.Professor;
-import NotableDeveloper.rank.domain.enums.Tier;
 import NotableDeveloper.rank.repository.DepartmentRepository;
 import NotableDeveloper.rank.repository.ProfessorRepository;
 import org.junit.jupiter.api.BeforeEach;

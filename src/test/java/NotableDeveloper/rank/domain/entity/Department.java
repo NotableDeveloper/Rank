@@ -17,4 +17,10 @@ public class Department {
 
     @Column(nullable = false, length = 6)
     private String shortenedName;
+
+    public Department(String college, String originalName, String shortenedName){
+        this.college = college;
+        this.originalName = originalName;
+        this.shortenedName = shortenedName;
+    }
 }
