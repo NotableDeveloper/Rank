@@ -23,7 +23,6 @@ public class Professor {
     @Column(nullable = false)
     private String college;
 
-    @Column(nullable = false)
     @OneToOne
     private Department department;
 
