@@ -1,9 +1,12 @@
 package NotableDeveloper.rank.domain.entity;
 
+import lombok.Getter;
+
 import javax.persistence.*;
 
 @Entity
 @Table
+@Getter
 public class Department {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
