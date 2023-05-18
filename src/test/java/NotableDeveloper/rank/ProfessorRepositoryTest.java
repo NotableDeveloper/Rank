@@ -23,7 +23,7 @@ public class ProfessorRepositoryTest {
     static ArrayList<Department> departments;
 
     @BeforeEach
-    @DisplayName("컴퓨터학부, 소프트웨어학부와 각 학부에 소속될 교수를 준비한다.")
+    @DisplayName("컴퓨터학부, 소프트웨어학부를 DB에 저장하고, 각 학부에 소속될 교수를 준비한다.")
     void setUp(){
         departments = new ArrayList<>();
 
@@ -32,6 +32,7 @@ public class ProfessorRepositoryTest {
 
         departments.add(computer);
         departments.add(soft);
+        departmentRepository.saveAll(departments);
 
         professors.add(new Professor("김철수", "IT대학", computer, "교수"));
         professors.add(new Professor("홍길동", "IT대학", soft, "강사"));
