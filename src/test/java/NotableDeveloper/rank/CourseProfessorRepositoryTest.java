@@ -9,7 +9,10 @@ import NotableDeveloper.rank.repository.CourseProfessorRepository;
 import NotableDeveloper.rank.repository.CourseRepository;
 import NotableDeveloper.rank.repository.DepartmentRepository;
 import NotableDeveloper.rank.repository.ProfessorRepository;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
@@ -74,5 +77,24 @@ public class CourseProfessorRepositoryTest {
         courseProfessors.add(new CourseProfessor(courses.get(0), professors.get(0)));
         courseProfessors.add(new CourseProfessor(courses.get(1), professors.get(0)));
         courseProfessors.add(new CourseProfessor(courses.get(2), professors.get(1)));
+    }
+
+    @Test
+    @DisplayName("김철수 교수가 개설한 강의를 등록한다.")
+    void 단일교수_개설강의_정상등록_테스트(){
+        ArrayList<CourseProfessor> savedCourseProfessor = new ArrayList<>();
+        savedCourseProfessor.add(courseProfessorRepository.save(courseProfessors.get(0)));
+        savedCourseProfessor.add(courseProfessorRepository.save(courseProfessors.get(1)));
+
+        ArrayList<CourseProfessor> courseProfessorsKim = courseProfessorRepository.findAllByProfessor_Id(1L);
+
+        Course firstCourse = courseProfessorsKim.get(0).getCourse();
+        Course secondCourse = courseProfessorsKim.get(1).getCourse();
+
+        Assertions.assertEquals("김철수", courseProfessorsKim.get(0).getProfessor().getName());
+        Assertions.assertEquals("50341233", firstCourse.getCode());
+        Assertions.assertEquals("객체지향 프로그래밍", firstCourse.getTitle());
+        Assertions.assertEquals("50301870", secondCourse.getCode());
+        Assertions.assertEquals("시스템 프로그래밍", secondCourse.getTitle());
     }
 }
