@@ -53,4 +53,26 @@ public class ProfessorRepositoryTest {
         Assertions.assertEquals("컴퓨터학부", savedProfessor.getDepartment().getOriginalName());
         Assertions.assertEquals("교수", savedProfessor.getPosition());
     }
+
+    @Test
+    @DisplayName("준비된 모든 교수를 DB에 등록한다.")
+    void 여러교수_정상등록_테스트(){
+        ArrayList<Professor> savedProfessors = new ArrayList<>();
+
+        for(Professor p : professors){
+            savedProfessors.add(professorRepository.save(p));
+        }
+
+        for(int i = 0; i < savedProfessors.size(); i++){
+            String savedProfessorName = savedProfessors.get(i).getName();
+            String savedProfessorCollege = savedProfessors.get(i).getCollege();
+            String savedProfessorDepartment = savedProfessors.get(i).getDepartment().getOriginalName();
+            String savedProfessorPosition = savedProfessors.get(i).getPosition();
+
+            Assertions.assertEquals(professors.get(i).getName(), savedProfessorName);
+            Assertions.assertEquals(professors.get(i).getCollege(), savedProfessorCollege);
+            Assertions.assertEquals(professors.get(i).getDepartment().getOriginalName(), savedProfessorDepartment);
+            Assertions.assertEquals(professors.get(i).getPosition(), savedProfessorPosition);
+        }
+    }
 }
