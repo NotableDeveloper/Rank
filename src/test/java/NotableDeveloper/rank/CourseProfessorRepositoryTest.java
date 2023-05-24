@@ -95,6 +95,29 @@ public class CourseProfessorRepositoryTest {
         Assertions.assertEquals("50341233", firstCourse.getCode());
         Assertions.assertEquals("객체지향 프로그래밍", firstCourse.getTitle());
         Assertions.assertEquals("50301870", secondCourse.getCode());
-        Assertions.assertEquals("시스템 프로그래밍", secondCourse.getTitle());
+        Assertions.assertEquals("시스템 프로그래", secondCourse.getTitle());
+    }
+
+    @Test
+    @DisplayName("김철수 교수, 홍길동 강사가 각각 개설한 강의들을 등록한다.")
+    void 여러교수_개설강의_정상등록_테스트() {
+        ArrayList<CourseProfessor> savedCourseProfessor = new ArrayList<>();
+
+        for (CourseProfessor cp : courseProfessors)
+            savedCourseProfessor.add(courseProfessorRepository.save(cp));
+
+        for(int i = 0; i < savedCourseProfessor.size(); i++){
+            Course course = courseProfessors.get(i).getCourse();
+            Course savedCourse = savedCourseProfessor.get(i).getCourse();
+
+            Professor professor = courseProfessors.get(i).getProfessor();
+            Professor savedProfessor = savedCourseProfessor.get(i).getProfessor();
+
+            Assertions.assertEquals(course.getCode(), savedCourse.getCode());
+            Assertions.assertEquals(course.getTitle(), savedCourse.getTitle());
+
+            Assertions.assertEquals(professor.getName(), savedProfessor.getName());
+            Assertions.assertEquals(professor.getDepartment().getOriginalName(), savedProfessor.getDepartment().getOriginalName());
+        }
     }
 }
