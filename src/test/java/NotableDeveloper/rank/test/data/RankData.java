@@ -13,10 +13,10 @@ import java.util.ArrayList;
 @Getter
 @Setter
 public class RankData {
-    static ArrayList<Course> courses;
-    static ArrayList<Professor> professors;
-    static ArrayList<CourseProfessor> courseProfessors;
-    static ArrayList<Department> departments;
+    ArrayList<Course> courses;
+    ArrayList<Professor> professors;
+    ArrayList<CourseProfessor> courseProfessors;
+    ArrayList<Department> departments;
 
     public RankData(){
         courses = new ArrayList<>();
