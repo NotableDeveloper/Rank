@@ -1,4 +1,4 @@
-package NotableDeveloper.rank;
+package NotableDeveloper.rank.test.repository;
 
 import NotableDeveloper.rank.domain.entity.Department;
 import NotableDeveloper.rank.domain.entity.Professor;

@@ -1,4 +1,4 @@
-package NotableDeveloper.rank;
+package NotableDeveloper.rank.test.repository;
 
 import NotableDeveloper.rank.domain.entity.Course;
 import NotableDeveloper.rank.domain.enums.Semester;
