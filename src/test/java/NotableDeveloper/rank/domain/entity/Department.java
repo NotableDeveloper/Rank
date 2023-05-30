@@ -1,6 +1,7 @@
 package NotableDeveloper.rank.domain.entity;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
