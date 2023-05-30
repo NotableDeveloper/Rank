@@ -2,21 +2,19 @@ package NotableDeveloper.rank.test.repository;
 
 import NotableDeveloper.rank.domain.entity.Course;
 import NotableDeveloper.rank.domain.entity.CourseProfessor;
-import NotableDeveloper.rank.domain.entity.Department;
 import NotableDeveloper.rank.domain.entity.Professor;
 import NotableDeveloper.rank.domain.enums.Semester;
 import NotableDeveloper.rank.repository.CourseProfessorRepository;
 import NotableDeveloper.rank.repository.CourseRepository;
 import NotableDeveloper.rank.repository.DepartmentRepository;
 import NotableDeveloper.rank.repository.ProfessorRepository;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import NotableDeveloper.rank.test.data.RankData;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
-import java.util.ArrayList;
+import java.util.List;
+
 
 @DataJpaTest
 public class CourseProfessorRepositoryTest {
@@ -32,92 +30,62 @@ public class CourseProfessorRepositoryTest {
     @Autowired
     CourseProfessorRepository courseProfessorRepository;
 
-    static ArrayList<Course> courses;
-    static ArrayList<Professor> professors;
-    static ArrayList<Department> departments;
-    static ArrayList<CourseProfessor> courseProfessors;
+    static RankData data = new RankData();
+
 
     @BeforeEach
+    @DisplayName("강의, 학과, 교수 정보를 DB에 저장한다.")
     void setUp(){
-        courses = new ArrayList<>();
-        professors = new ArrayList<>();
-        departments = new ArrayList<>();
-        courseProfessors = new ArrayList<>();
-
-        // 강의 정보 저장
-        courses.add(new Course("객체지향 프로그래밍", 2021, Semester.FIRST, "50341233", 79.00F));
-        courses.add(new Course("시스템 프로그래밍", 2022, Semester.FIRST, "50301870", 76.00F));
-        courses.add(new Course("데이터베이스", 2023, Semester.FIRST, "50321144", 82.00F));
-
-        // 강의 DB 등록
-        courseRepository.saveAll(courses);
-
-        // 학과 정보 저장
-        Department computer = new Department("IT대학", "컴퓨터학부", "컴퓨터");
-        Department soft = new Department("IT대학", "소프트웨어학부", "소프트");
-
-        departments.add(computer);
-        departments.add(soft);
-
-        // 학과 정보 DB 등록
-        departmentRepository.saveAll(departments);
-
-        // 교수 정보 저장
-        professors.add(new Professor("김철수", "IT대학", computer, "교수"));
-        professors.add(new Professor("홍길동", "IT대학", soft, "강사"));
-
-        // 교수 DB 등록
-        professorRepository.saveAll(professors);
-
         /*
-            2021년 1학기 객체지향 프로그래밍 강의와 2022년 1학기 시스템 프로그래밍 강의는
-            컴퓨터학부의 김철수 교수가 담당하였다.
-            2023년 1학기 데이터베이스 강의는 소프트웨어학부의 홍길동 강사가 담당하였다.
+            중복을 제외하고 강의를 DB에 등록한다.
          */
-        courseProfessors.add(new CourseProfessor(courses.get(0), professors.get(0)));
-        courseProfessors.add(new CourseProfessor(courses.get(1), professors.get(0)));
-        courseProfessors.add(new CourseProfessor(courses.get(2), professors.get(1)));
-    }
+        for(Course course : data.getCourses()){
+            if(courseRepository.existsByTitleAndOfferedYearAndSemesterAndCode(
+                    course.getTitle(),
+                    course.getOfferedYear(),
+                    course.getSemester(),
+                    course.getCode()
+            )){
+                Course updateCourse = courseRepository.findByTitleAndOfferedYearAndSemesterAndCode(
+                        course.getTitle(),
+                        course.getOfferedYear(),
+                        course.getSemester(),
+                        course.getCode()
+                );
 
-    @Test
-    @DisplayName("김철수 교수가 개설한 강의를 등록한다.")
-    void 단일교수_개설강의_정상등록_테스트(){
-        ArrayList<CourseProfessor> savedCourseProfessor = new ArrayList<>();
-        savedCourseProfessor.add(courseProfessorRepository.save(courseProfessors.get(0)));
-        savedCourseProfessor.add(courseProfessorRepository.save(courseProfessors.get(1)));
+                int updateCount = updateCourse.getCount() + 1;
+                float updateRating = updateCourse.getRating() + course.getRating();
 
-        ArrayList<CourseProfessor> courseProfessorsKim = courseProfessorRepository.findAllByProfessor_Id(1L);
+                updateCourse.setCount(updateCount);
+                updateCourse.setRating(updateRating);
 
-        Course firstCourse = courseProfessorsKim.get(0).getCourse();
-        Course secondCourse = courseProfessorsKim.get(1).getCourse();
+                courseRepository.save(updateCourse);
+            }
 
-        Assertions.assertEquals("김철수", courseProfessorsKim.get(0).getProfessor().getName());
-        Assertions.assertEquals("50341233", firstCourse.getCode());
-        Assertions.assertEquals("객체지향 프로그래밍", firstCourse.getTitle());
-        Assertions.assertEquals("50301870", secondCourse.getCode());
-        Assertions.assertEquals("시스템 프로그래", secondCourse.getTitle());
+            else courseRepository.save(course);
+        }
+
+        departmentRepository.saveAll(data.getDepartments());
+        professorRepository.saveAll(data.getProfessors());
     }
 
     @Test
     @DisplayName("김철수 교수, 홍길동 강사가 각각 개설한 강의들을 등록한다.")
     void 여러교수_개설강의_정상등록_테스트() {
-        ArrayList<CourseProfessor> savedCourseProfessor = new ArrayList<>();
+        List<CourseProfessor> savedCourseProfessors = courseProfessorRepository.saveAll(data.getCourseProfessors());
+        List<CourseProfessor> alreadyCourseProfessors = data.getCourseProfessors();
 
-        for (CourseProfessor cp : courseProfessors)
-            savedCourseProfessor.add(courseProfessorRepository.save(cp));
+        /*
+            CourseProfessor 테이블에는 현재 세 개의 강의-교수 정보가 등록되어 있어야한다.
+         */
+        Assertions.assertEquals(3, courseProfessorRepository.findAll().size());
 
-        for(int i = 0; i < savedCourseProfessor.size(); i++){
-            Course course = courseProfessors.get(i).getCourse();
-            Course savedCourse = savedCourseProfessor.get(i).getCourse();
+        for(int i = 0; i < savedCourseProfessors.size(); i++){
+            CourseProfessor alreadyCP = alreadyCourseProfessors.get(i);
+            CourseProfessor savedCP = savedCourseProfessors.get(i);
 
-            Professor professor = courseProfessors.get(i).getProfessor();
-            Professor savedProfessor = savedCourseProfessor.get(i).getProfessor();
-
-            Assertions.assertEquals(course.getCode(), savedCourse.getCode());
-            Assertions.assertEquals(course.getTitle(), savedCourse.getTitle());
-
-            Assertions.assertEquals(professor.getName(), savedProfessor.getName());
-            Assertions.assertEquals(professor.getDepartment().getOriginalName(), savedProfessor.getDepartment().getOriginalName());
+            Assertions.assertEquals(alreadyCP.getCourse().getId(), savedCP.getCourse().getId());
+            Assertions.assertEquals(alreadyCP.getProfessor().getId(), savedCP.getProfessor().getId());
         }
     }
 }

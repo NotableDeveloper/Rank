@@ -5,6 +5,8 @@ import NotableDeveloper.rank.domain.enums.Tier;
 import lombok.*;
 import javax.persistence.*;
 
+import static java.util.Objects.hash;
+
 @Entity
 @Table
 @Getter
@@ -46,5 +48,18 @@ public class Course {
         this.rating = rating;
         this.tier = Tier.F;
         this.count = 1;
+    }
+
+    @Override
+    public boolean equals(Object other){
+        return (this.getTitle() == ((Course) other).getTitle() &&
+                this.getOfferedYear() == ((Course) other).getOfferedYear() &&
+                this.getSemester() == ((Course) other).getSemester() &&
+                this.getCode() == ((Course) other).getCode());
+    }
+
+    @Override
+    public int hashCode(){
+        return hash(this.getTitle(), this.offeredYear, this.getSemester(), this.getCode());
     }
 }

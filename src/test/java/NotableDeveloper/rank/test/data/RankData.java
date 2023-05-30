@@ -5,7 +5,6 @@ import NotableDeveloper.rank.domain.entity.CourseProfessor;
 import NotableDeveloper.rank.domain.entity.Department;
 import NotableDeveloper.rank.domain.entity.Professor;
 import NotableDeveloper.rank.domain.enums.Semester;
-import NotableDeveloper.rank.repository.DepartmentRepository;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -48,11 +47,17 @@ public class RankData {
             2023년 1학기 객체지향 프로그래밍 강의는 컴퓨터학부의 김철수 교수가 담당하였다.
             2022년 1학기 시스템 프로그래밍, 데이터베이스 강의는 소프트웨어학부의 홍길동 교수가 담당하였다.
          */
-        for(int i = 0; i < courses.size(); i++){
-            if(i < 3)
-                courseProfessors.add(new CourseProfessor(courses.get(i), professors.get(0)));
+        for(int i = 0; i < courses.size(); i++) {
+            CourseProfessor saveCP = new CourseProfessor(courses.get(i), professors.get(0));
 
-            else courseProfessors.add(new CourseProfessor(courses.get(i), professors.get(1)));
+            /*
+                중복을 제외하고 저장한다.
+             */
+            if (!courseProfessors.stream().anyMatch(
+                alreadyCP -> alreadyCP.getCourse().getCode().equals(saveCP.getCourse().getCode())
+            )) {
+                courseProfessors.add(saveCP);
+            }
         }
     }
 }

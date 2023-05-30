@@ -23,7 +23,7 @@ public class Professor {
     @Column(nullable = false)
     private String college;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private Department department;
 
     @Column(nullable = false)
