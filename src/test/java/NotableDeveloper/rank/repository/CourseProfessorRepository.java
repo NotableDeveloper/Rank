@@ -1,7 +1,6 @@
 package NotableDeveloper.rank.repository;
 
 import NotableDeveloper.rank.domain.entity.CourseProfessor;
-import NotableDeveloper.rank.domain.entity.Professor;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.ArrayList;
