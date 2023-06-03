@@ -8,6 +8,7 @@ import javax.persistence.*;
 @Entity
 @Table
 @Getter
+@NoArgsConstructor
 public class Department {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -70,7 +70,7 @@ public class DataInjectServiceTest {
             이후 existsYearAndSemester를 호출하면 2020년 1학기 데이터가 주입되어 있을 것이므로
             true가 반환되어야 한다.
          */
-        Mockito.when(rankVersionRepository.existsYearAndSemester(year, semester))
+        Mockito.when(rankVersionRepository.existsByYearAndSemester(year, semester))
                 .thenReturn(false)
                 .thenReturn(true);
 
@@ -85,4 +85,6 @@ public class DataInjectServiceTest {
         Assertions.assertThrows(EvaluationAlreadyException.class,
                 () -> simpleInjectService.updateEvaluates(year, semester));
     }
+
+
 }

@@ -27,7 +27,7 @@ public class SimpleInjectService extends DataInjectService {
 
 
     public void updateEvaluates(int year, Semester semester) {
-        if(rankVersionRepository.existsYearAndSemester(year, semester))
+        if(rankVersionRepository.existsByYearAndSemester(year, semester))
             throw new EvaluationAlreadyException();
 
         rankVersionRepository.save(new RankVersion(year, semester));
