@@ -1,5 +1,6 @@
 package NotableDeveloper.rank.domain.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -27,5 +28,11 @@ public class Department {
         this.college = college;
         this.originalName = originalName;
         this.shortenedName = shortenedName;
+    }
+
+    public Department(String college, String originalName){
+        this.college = college;
+        this.originalName = originalName;
+        this.shortenedName = "";
     }
 }

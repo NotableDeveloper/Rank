@@ -1,5 +1,8 @@
 package NotableDeveloper.rank.test.service;
 
+import NotableDeveloper.rank.domain.dto.DepartmentDto;
+import NotableDeveloper.rank.domain.dto.EvaluationDto;
+import NotableDeveloper.rank.domain.entity.Department;
 import NotableDeveloper.rank.domain.enums.Semester;
 import NotableDeveloper.rank.domain.exceptiion.EvaluationAlreadyException;
 import NotableDeveloper.rank.repository.*;
@@ -12,6 +15,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
+
 
 public class DataInjectServiceTest {
     DataInjectService simpleInjectService;
@@ -31,16 +40,47 @@ public class DataInjectServiceTest {
     @Mock
     RankVersionRepository rankVersionRepository;
 
+    List<EvaluationDto> evaluations;
+
     @BeforeEach
     void setUp(){
         MockitoAnnotations.openMocks(this);
+
+        evaluations = new ArrayList<>();
+
+        evaluations.add(
+                new EvaluationDto(2023, Semester.FIRST, "12345678901", "데이터베이스", "김철수", "IT대학", "컴퓨터학부", "교수")
+        );
+
+        evaluations.add(
+                new EvaluationDto(2023, Semester.FIRST, "98765432101", "인공지능", "김영희", "IT대학", "소프트웨어학부", "교수")
+        );
+
+        evaluations.add(
+                new EvaluationDto(2023, Semester.FIRST, "2468135901", "컴퓨터그래픽", "홍길동", "IT대학", "글로벌미디어학부", "강사")
+        );
+
+        evaluations.add(
+                new EvaluationDto(2023, Semester.FIRST, "1357246801", "운영체제", "김철수", "IT대학", "컴퓨터학부", "교수")
+        );
+
+
+        /*
+            simpleInjectService 내에서 사용될 학과 정보 데이터를 준비하고, 생성자 주입을 통하여 넣어준다.
+         */
+        HashSet<DepartmentDto> departmentSet;
+
+        departmentSet = evaluations.stream().map(evaluations ->
+                        new DepartmentDto(evaluations.getCollege(), evaluations.getDepartment()))
+                .collect(Collectors.toCollection(HashSet::new));
 
         simpleInjectService = new SimpleInjectService(
                 courseRepository,
                 professorRepository,
                 departmentRepository,
                 courseProfessorRepository,
-                rankVersionRepository
+                rankVersionRepository,
+                departmentSet
         );
     }
 
@@ -80,11 +120,50 @@ public class DataInjectServiceTest {
             이후 호출하는 updateEvaluates 메서드는 예외가 발생하게 된다.
          */
         Assertions.assertDoesNotThrow(() ->
-                        simpleInjectService.updateEvaluates(year, semester));
+                        simpleInjectService.updateEvaluates(year, semester, evaluations));
 
         Assertions.assertThrows(EvaluationAlreadyException.class,
-                () -> simpleInjectService.updateEvaluates(year, semester));
+                () -> simpleInjectService.updateEvaluates(year, semester, evaluations));
     }
 
+    @Test
+    @DisplayName("강의 평가 데이터가 주입되는 과정에서 학과 정보가 주입된다.")
+    void 학과정보_주입_테스트(){
+        /*
+            Given :
+            이 테스트에서 저장되는 학과 정보는 setUp 메서드에서 준비한 강의 평가 데이터에 나오는 학과들이다.
+        */
+        HashSet<DepartmentDto> savedDepartments;
 
+        savedDepartments = evaluations.stream().map(evaluations ->
+                        new DepartmentDto(evaluations.getCollege(), evaluations.getDepartment()))
+                .collect(Collectors.toCollection(HashSet::new));
+
+        /*
+            When :
+            2023학년도 1학기 데이터를 최초로 주입하는 상황임을 가정하고, 그에 맞게 예외 처리가 되지 않도록 설정해준다.
+         */
+
+        Mockito.when(rankVersionRepository.existsByYearAndSemester(2023, Semester.FIRST))
+                .thenReturn(false);
+
+        simpleInjectService.updateEvaluates(2023, Semester.FIRST, evaluations);
+
+        /*
+            Then :
+            미리 준비하여 주입한 데이터 대로 DB에서 조회하는 지와 저장하는 지를 확인한다.
+         */
+        for(DepartmentDto savedDepartment : savedDepartments) {
+            String college = savedDepartment.getCollege();
+            String originalName = savedDepartment.getOriginalName();
+
+            Mockito.verify(departmentRepository,
+                    Mockito.times(1))
+                    .existsByCollegeAndOriginalName(college, originalName);
+        }
+
+        Mockito.verify(departmentRepository,
+                Mockito.times(savedDepartments.size()))
+                .save(Mockito.any(Department.class));
+    }
 }

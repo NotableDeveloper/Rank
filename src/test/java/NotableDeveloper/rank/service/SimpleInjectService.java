@@ -1,20 +1,23 @@
 package NotableDeveloper.rank.service;
 
+import NotableDeveloper.rank.domain.dto.DepartmentDto;
+import NotableDeveloper.rank.domain.dto.EvaluationDto;
+import NotableDeveloper.rank.domain.dto.ShortenDepartmentDto;
+import NotableDeveloper.rank.domain.entity.Department;
 import NotableDeveloper.rank.domain.entity.RankVersion;
 import NotableDeveloper.rank.domain.enums.Semester;
 import NotableDeveloper.rank.domain.exceptiion.EvaluationAlreadyException;
 import NotableDeveloper.rank.repository.*;
+
 import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
+import java.util.List;
+
 @Service
-@Getter
-@Setter
 @AllArgsConstructor
-public class SimpleInjectService extends DataInjectService {
+public class SimpleInjectService implements DataInjectService {
     CourseRepository courseRepository;
 
     ProfessorRepository professorRepository;
@@ -25,25 +28,42 @@ public class SimpleInjectService extends DataInjectService {
 
     RankVersionRepository rankVersionRepository;
 
+    private HashSet<DepartmentDto> departmentSet;
 
-    public void updateEvaluates(int year, Semester semester) {
+    @Override
+    public void updateEvaluates(int year, Semester semester, List<EvaluationDto> evaluations) {
         if(rankVersionRepository.existsByYearAndSemester(year, semester))
             throw new EvaluationAlreadyException();
 
         rankVersionRepository.save(new RankVersion(year, semester));
 
-        /*
-            To do : 데이터 주입 처리
-         */
+        for(EvaluationDto evaluationDto : evaluations){
+            DepartmentDto departmentDto =
+                    new DepartmentDto(evaluationDto.getCollege(), evaluationDto.getDepartment());
+
+            departmentSet.add(departmentDto);
+        }
+
+        updateDepartment();
+    }
+
+    public void updateDepartment(){
+        for(DepartmentDto departmentDto : departmentSet){
+            String college = departmentDto.getCollege();
+            String originalName = departmentDto.getOriginalName();
+
+            if(!departmentRepository.existsByCollegeAndOriginalName(college, originalName)){
+                departmentRepository.save(new Department(college, originalName));
+            }
+        }
     }
 
     @Override
-    public void updateDepartments() {
+    public void updateDepartmentShorten(List<ShortenDepartmentDto> simpleDepartments) {
 
     }
 
-    @Override
-    public void updateDepartmentShorten() {
-
+    public void hello(){
+        System.out.println("Hello!");
     }
 }

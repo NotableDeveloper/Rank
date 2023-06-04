@@ -27,7 +27,7 @@ public class Course {
     @Enumerated(EnumType.STRING)
     private Semester semester;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 8)
     private String code;
 
     @Column(nullable = false)
