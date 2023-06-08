@@ -7,11 +7,20 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
 public class CourseDto {
     String title;
     int year;
     Semester semester;
     String code;
     float rating;
+    int count;
+
+    public CourseDto(String title, int year, Semester semester, String code, float rating){
+        this.title = title;
+        this.year = year;
+        this.semester = semester;
+        this.code = code;
+        this.rating = rating;
+        count = 1;
+    }
 }

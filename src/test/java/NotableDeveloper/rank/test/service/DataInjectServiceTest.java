@@ -18,9 +18,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -51,21 +49,28 @@ public class DataInjectServiceTest {
         evaluations = new ArrayList<>();
 
         evaluations.add(
-                new EvaluationDto(2023, Semester.FIRST, "12345678901", "데이터베이스", "김철수", "IT대학", "컴퓨터학부", "교수", 80.03F)
+                new EvaluationDto(2023, Semester.FIRST, "1234567801", "데이터베이스", "김철수", "IT대학", "컴퓨터학부", "교수", 80.03F)
         );
 
         evaluations.add(
-                new EvaluationDto(2023, Semester.FIRST, "98765432101", "인공지능", "김영희", "IT대학", "소프트웨어학부", "교수", 94.02F)
+                new EvaluationDto(2023, Semester.FIRST, "8765432101", "인공지능", "김영희", "IT대학", "소프트웨어학부", "교수", 94.02F)
         );
 
         evaluations.add(
-                new EvaluationDto(2023, Semester.FIRST, "2468135901", "컴퓨터그래픽", "홍길동", "IT대학", "글로벌미디어학부", "강사", 97.00F)
+                new EvaluationDto(2023, Semester.FIRST, "2468135701", "컴퓨터그래픽", "홍길동", "IT대학", "글로벌미디어학부", "강사", 97.00F)
         );
 
         evaluations.add(
                 new EvaluationDto(2023, Semester.FIRST, "1357246801", "운영체제", "김철수", "IT대학", "컴퓨터학부", "교수", 86.32F)
         );
 
+        evaluations.add(
+                new EvaluationDto(2023, Semester.FIRST, "1357246802", "운영체제", "김철수", "IT대학", "컴퓨터학부", "교수", 83.32F)
+        );
+
+        evaluations.add(
+                new EvaluationDto(2023, Semester.FIRST, "1357246803", "운영체제", "김철수", "IT대학", "컴퓨터학부", "교수", 88.32F)
+        );
 
         /*
             simpleInjectService 내에서 사용될 학과 정보 데이터를 준비하고, 생성자 주입을 통하여 넣어준다.
@@ -171,12 +176,14 @@ public class DataInjectServiceTest {
 
     @Test
     @DisplayName("강의 평가 데이터가 주입되는 과정에서 강의 정보가 주입된다.")
-    void 강의정보_주입_테스트(){
+    void 강의정보_주입_테스트() {
         /*
             Given :
             이 테스트에서 저장되는 강의 정보는 setUp 메서드에서 준비한 강의 평가 데이터에 나오는 강의들이다.
+            evaluationCourses는 모든 과목에 대한 courseDto를 생성하여 저장하고,
+            uniqueCourses는 과목 코드를 기준으로 분반을 나누어 courseDto를 생성하여 중복없이 저장한다.
          */
-        ArrayList<CourseDto> savedCourses =
+        ArrayList<CourseDto> evaluationCourses =
                 (ArrayList<CourseDto>) evaluations.stream().map(evaluations ->
                         new CourseDto(evaluations.getTitle(),
                                 evaluations.getYear(),
@@ -184,22 +191,103 @@ public class DataInjectServiceTest {
                                 evaluations.getCode(),
                                 evaluations.getRating()
                         )).collect(Collectors.toList());
+
+        Map<String, CourseDto> uniqueCourses = new HashMap<>();
+
+        for (CourseDto courseDto : evaluationCourses) {
+            String slicedCode = courseDto.getCode().substring(0, 8);
+
+            if (!uniqueCourses.containsKey(slicedCode)) uniqueCourses.put(slicedCode, courseDto);
+
+            else {
+                CourseDto existingDto = uniqueCourses.get(slicedCode);
+                existingDto.setCount(existingDto.getCount() + 1);
+                existingDto.setRating(existingDto.getRating() + courseDto.getRating());
+            }
+        }
+
         /*
             When :
             2023학년도 1학기 데이터를 최초로 주입하는 상황임을 가정하고, 그에 맞게 예외 처리가 되지 않도록 설정해준다.
-         */
+
+            existsByTitleAndOfferedYearAndSemesterAndCode 메서드를 최초로 호출하면 true를 반환하고
+            이후 호출은 무조건 false를 반환하도록 설정한다.
+
+            findByTitleAndOfferedYearAndSemesterAndCode 메서드를 호출할 때마다 매개 인자에 맞는 course 객체를
+            호출하도록 설정한다.
+        */
 
         Mockito.when(rankVersionRepository.existsByYearAndSemester(2023, Semester.FIRST))
                 .thenReturn(false);
+
+        for(CourseDto courseDto : uniqueCourses.values()) {
+            String slicedCode = courseDto.getCode().substring(0, 8);
+
+            Mockito.when(courseRepository.existsByTitleAndOfferedYearAndSemesterAndCode(
+                            courseDto.getTitle(),
+                            courseDto.getYear(),
+                            courseDto.getSemester(),
+                            slicedCode
+                    ))
+                    .thenReturn(false)
+                    .thenReturn(true);
+
+            Course findCourse = new Course(
+                    courseDto.getTitle(),
+                    courseDto.getYear(),
+                    courseDto.getSemester(),
+                    courseDto.getCode(),
+                    courseDto.getRating());
+
+            findCourse.setCount(courseDto.getCount());
+
+            Mockito.when(courseRepository.findByTitleAndOfferedYearAndSemesterAndCode(
+                    courseDto.getTitle(),
+                    courseDto.getYear(),
+                    courseDto.getSemester(),
+                    slicedCode
+            )).thenReturn(findCourse);
+        }
 
         simpleInjectService.updateEvaluates(2023, Semester.FIRST, evaluations);
 
         /*
             Then :
-            미리 준비하여 주입한 데이터만큼 저장하는 지를 확인한다.
+            미리 준비하여 주입한 데이터의 수만큼 저장이 이루어지는 지를 확인한다.
+            또, existsByTitleAndOfferedYearAndSemesterAndCode 메서드와
+            findByTitleAndOfferedYearAndSemesterAndCode 메서드가 강의평가 데이터에 맞게
+            호출되는 지를 확인한다.
         */
         Mockito.verify(courseRepository,
-                        Mockito.times(savedCourses.size()))
+                        Mockito.times(evaluationCourses.size()))
                 .save(Mockito.any(Course.class));
+
+        for(CourseDto courseDto : evaluationCourses) {
+            String slicedCode = courseDto.getCode().substring(0, 8);
+            int count = uniqueCourses.get(slicedCode).getCount();
+
+            Mockito.verify(courseRepository,
+                            Mockito.times(count))
+                    .existsByTitleAndOfferedYearAndSemesterAndCode(
+                            courseDto.getTitle(),
+                            courseDto.getYear(),
+                            courseDto.getSemester(),
+                            slicedCode);
+        }
+
+        for(CourseDto courseDto : uniqueCourses.values()){
+            if(courseDto.getCount() > 1){
+                String slicedCode = courseDto.getCode().substring(0, 8);
+                int offset = courseDto.getCount() - 1;
+
+                Mockito.verify(courseRepository,
+                        Mockito.times(offset)
+                        ).findByTitleAndOfferedYearAndSemesterAndCode(
+                        courseDto.getTitle(),
+                        courseDto.getYear(),
+                        courseDto.getSemester(),
+                        slicedCode);
+            }
+        }
     }
 }
