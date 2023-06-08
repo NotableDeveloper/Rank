@@ -45,9 +45,11 @@ public class SimpleInjectService implements DataInjectService {
         }
 
         updateDepartment();
+
+
     }
 
-    public void updateDepartment(){
+    private void updateDepartment(){
         for(DepartmentDto departmentDto : departmentSet){
             String college = departmentDto.getCollege();
             String originalName = departmentDto.getOriginalName();

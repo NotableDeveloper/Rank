@@ -5,17 +5,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-@AllArgsConstructor
 @Getter
 @Setter
-public class EvaluationDto {
+@AllArgsConstructor
+public class CourseDto {
+    String title;
     int year;
     Semester semester;
     String code;
-    String title;
-    String professorName;
-    String college;
-    String department;
-    String position;
     float rating;
 }
