@@ -10,14 +10,16 @@ import NotableDeveloper.rank.domain.exceptiion.EvaluationAlreadyException;
 import NotableDeveloper.rank.repository.*;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.stereotype.Service;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+
 
 @Service
+@Getter
+@Setter
 @AllArgsConstructor
-public class SimpleInjectService implements DataInjectService {
+public class SimpleInjectService{
     CourseRepository courseRepository;
 
     ProfessorRepository professorRepository;
@@ -28,46 +30,23 @@ public class SimpleInjectService implements DataInjectService {
 
     RankVersionRepository rankVersionRepository;
 
-    private HashSet<DepartmentDto> departmentSet;
+    SimpleEvaluationExtract extractor;
 
-    @Override
-    public void updateEvaluates(int year, Semester semester, List<EvaluationDto> evaluations) {
-        ArrayList<CourseDto> courses = new ArrayList<>();
-        ArrayList<ProfessorDto> professors = new ArrayList();
-
+    public void updateEvaluates(int year, Semester semester) {
         if(rankVersionRepository.existsByYearAndSemester(year, semester))
             throw new EvaluationAlreadyException();
 
         rankVersionRepository.save(new RankVersion(year, semester));
 
-        for(EvaluationDto evaluationDto : evaluations){
-            DepartmentDto departmentDto =
-                    new DepartmentDto(evaluationDto.getCollege(), evaluationDto.getDepartment());
+        extractor.extractEvaluation();
 
-            departmentSet.add(departmentDto);
-
-            courses.add(new CourseDto(
-                    evaluationDto.getTitle(),
-                    evaluationDto.getYear(),
-                    evaluationDto.getSemester(),
-                    evaluationDto.getCode(),
-                    evaluationDto.getRating()));
-
-            professors.add(new ProfessorDto(
-                    evaluationDto.getProfessorName(),
-                    evaluationDto.getCollege(),
-                    evaluationDto.getDepartment(),
-                    evaluationDto.getPosition()
-            ));
-        }
-
-        updateDepartment();
-        updateCourse(courses);
-        saveProfessor(professors);
+        saveDepartment();
+        saveCourse();
+        saveProfessor();
     }
 
-    private void updateDepartment(){
-        for(DepartmentDto departmentDto : departmentSet){
+    private void saveDepartment(){
+        for(DepartmentDto departmentDto : extractor.getDepartments()){
             String college = departmentDto.getCollege();
             String originalName = departmentDto.getOriginalName();
 
@@ -77,8 +56,8 @@ public class SimpleInjectService implements DataInjectService {
         }
     }
 
-    private void updateCourse(List<CourseDto> courses){
-        for(CourseDto courseDto : courses){
+    private void saveCourse(){
+        for(CourseDto courseDto : extractor.getCourses()){
             String slicedCode = courseDto.getCode().substring(0, 8);
 
             if(!courseRepository.existsByTitleAndOfferedYearAndSemesterAndCode(
@@ -114,16 +93,16 @@ public class SimpleInjectService implements DataInjectService {
         }
     }
 
-    private void saveProfessor(List<ProfessorDto> professors) {
-        for (ProfessorDto professorDto : professors) {
-            Department professorDepartment = departmentRepository.findByCollegeAndOriginalName(
-                    professorDto.getCollege(),
-                    professorDto.getDepartment());
-
-            if (!professorRepository.existsByNameAndDepartment_Id(
+    private void saveProfessor() {
+        for (ProfessorDto professorDto : extractor.getProfessors()) {
+            if (!professorRepository.existsByNameAndDepartment_OriginalName(
                     professorDto.getName(),
-                     professorDepartment.getId()
+                    professorDto.getDepartment()
             )) {
+                Department professorDepartment = departmentRepository.findByCollegeAndOriginalName(
+                        professorDto.getCollege(),
+                        professorDto.getDepartment());
+
                 professorRepository.save(new Professor(
                         professorDto.getName(),
                         professorDto.getCollege(),
@@ -131,9 +110,5 @@ public class SimpleInjectService implements DataInjectService {
                         professorDto.getPosition()));
             }
         }
-    }
-    @Override
-    public void updateDepartmentShorten(List<ShortenDepartmentDto> simpleDepartments) {
-
     }
 }

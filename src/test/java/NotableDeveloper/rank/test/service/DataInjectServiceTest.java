@@ -10,7 +10,7 @@ import NotableDeveloper.rank.domain.entity.Professor;
 import NotableDeveloper.rank.domain.enums.Semester;
 import NotableDeveloper.rank.domain.exceptiion.EvaluationAlreadyException;
 import NotableDeveloper.rank.repository.*;
-import NotableDeveloper.rank.service.DataInjectService;
+import NotableDeveloper.rank.service.SimpleEvaluationExtract;
 import NotableDeveloper.rank.service.SimpleInjectService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,14 +18,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
 
 public class DataInjectServiceTest {
-    DataInjectService simpleInjectService;
+    @Mock
+    SimpleInjectService simpleInjectService;
 
     @Mock
     CourseRepository courseRepository;
@@ -42,11 +41,15 @@ public class DataInjectServiceTest {
     @Mock
     RankVersionRepository rankVersionRepository;
 
-    List<EvaluationDto> evaluations;
+    ArrayList<EvaluationDto> evaluations;
 
     @BeforeEach
     void setUp(){
-        MockitoAnnotations.openMocks(this);
+        courseRepository = Mockito.mock(CourseRepository.class);
+        professorRepository = Mockito.mock(ProfessorRepository.class);
+        departmentRepository = Mockito.mock(DepartmentRepository.class);
+        courseProfessorRepository = Mockito.mock(CourseProfessorRepository.class);
+        rankVersionRepository = Mockito.mock(RankVersionRepository.class);
 
         evaluations = new ArrayList<>();
 
@@ -74,14 +77,8 @@ public class DataInjectServiceTest {
                 new EvaluationDto(2023, Semester.FIRST, "1357246803", "운영체제", "김철수", "IT대학", "컴퓨터학부", "교수", 88.32F)
         );
 
-        /*
-            simpleInjectService 내에서 사용될 학과 정보 데이터를 준비하고, 생성자 주입을 통하여 넣어준다.
-         */
-        HashSet<DepartmentDto> departmentSet;
-
-        departmentSet = evaluations.stream().map(evaluations ->
-                        new DepartmentDto(evaluations.getCollege(), evaluations.getDepartment()))
-                .collect(Collectors.toCollection(HashSet::new));
+        SimpleEvaluationExtract extract = new SimpleEvaluationExtract();
+        extract.setEvaluations(evaluations);
 
         simpleInjectService = new SimpleInjectService(
                 courseRepository,
@@ -89,13 +86,13 @@ public class DataInjectServiceTest {
                 departmentRepository,
                 courseProfessorRepository,
                 rankVersionRepository,
-                departmentSet
+                extract
         );
     }
 
     @Test
     @DisplayName("강의 평가 데이터 주입은 오직 한번만 수행되어야 한다.")
-    void 데이터_중복저장_방지_테스트(){
+    void 데이터_중복저장_방지_테스트() {
         /*
             Given :
             simpleInjectService의 updateEvaluates 메서드는 강의 데이터가
@@ -129,10 +126,11 @@ public class DataInjectServiceTest {
             이후 호출하는 updateEvaluates 메서드는 예외가 발생하게 된다.
          */
         Assertions.assertDoesNotThrow(() ->
-                        simpleInjectService.updateEvaluates(year, semester, evaluations));
+                simpleInjectService.updateEvaluates(year, semester));
 
         Assertions.assertThrows(EvaluationAlreadyException.class,
-                () -> simpleInjectService.updateEvaluates(year, semester, evaluations));
+                () -> simpleInjectService.updateEvaluates(year, semester));
+
     }
 
     @Test
@@ -156,7 +154,7 @@ public class DataInjectServiceTest {
         Mockito.when(rankVersionRepository.existsByYearAndSemester(2023, Semester.FIRST))
                 .thenReturn(false);
 
-        simpleInjectService.updateEvaluates(2023, Semester.FIRST, evaluations);
+        simpleInjectService.updateEvaluates(2023, Semester.FIRST);
 
         /*
             Then :
@@ -251,7 +249,7 @@ public class DataInjectServiceTest {
             )).thenReturn(findCourse);
         }
 
-        simpleInjectService.updateEvaluates(2023, Semester.FIRST, evaluations);
+        simpleInjectService.updateEvaluates(2023, Semester.FIRST);
 
         /*
             Then :
@@ -283,12 +281,12 @@ public class DataInjectServiceTest {
                 int offset = courseDto.getCount() - 1;
 
                 Mockito.verify(courseRepository,
-                        Mockito.times(offset)
-                        ).findByTitleAndOfferedYearAndSemesterAndCode(
-                        courseDto.getTitle(),
-                        courseDto.getYear(),
-                        courseDto.getSemester(),
-                        slicedCode);
+                        Mockito.times(offset))
+                        .findByTitleAndOfferedYearAndSemesterAndCode(
+                            courseDto.getTitle(),
+                            courseDto.getYear(),
+                            courseDto.getSemester(),
+                            slicedCode);
             }
         }
     }
@@ -328,32 +326,32 @@ public class DataInjectServiceTest {
                     professorDto.getDepartment()))
                     .thenReturn(mockDepartment);
 
-            Mockito.when(professorRepository.existsByNameAndDepartment_Id(
+            Mockito.when(professorRepository.existsByNameAndDepartment_OriginalName(
                             professorDto.getName(),
-                            mockDepartment.getId()
+                            professorDto.getDepartment()
                             ))
                     .thenReturn(false)
                     .thenReturn(true);
         }
 
 
-        simpleInjectService.updateEvaluates(2023, Semester.FIRST, evaluations);
+        simpleInjectService.updateEvaluates(2023, Semester.FIRST);
 
         /*
             Then :
-            department 조회가 준비한 데이터 크기만큼 이루어지는 지를 검증한다.
-            이미 DB에 저장된 교수인 지를 조회하는 메서드가 준비한 데이터 크기만큼 이루어지는 지를 검증한다.
+            교수가 이미 저장 되어있는 지를 확인하는 조회가 준비한 데이터 크기만큼 이루어지는 지를 검증한다.
+            교수를 저장하기 위해 학과 정보를 가져오는 데이터가 준비한 데이터 중에 중복을 제외한 만큼 이루어지는 지를 검증한다.
             DB에 교수를 저장하는 메서드가 준비한 데이터 중에 중복을 제외한 만큼 이루어지는 지를 검증한다.
          */
-        Mockito.verify(departmentRepository,
-                    Mockito.times(evaluationProfessors.size())
-                ).findByCollegeAndOriginalName(Mockito.any(), Mockito.any());
-
         Mockito.verify(professorRepository,
                 Mockito.times(evaluationProfessors.size())
-                ).existsByNameAndDepartment_Id(Mockito.any(), Mockito.any());
+                ).existsByNameAndDepartment_OriginalName(Mockito.any(), Mockito.any());
 
         int offset = (int) evaluationProfessors.stream().distinct().count();
+
+        Mockito.verify(departmentRepository,
+                Mockito.times(offset)
+        ).findByCollegeAndOriginalName(Mockito.any(), Mockito.any());
 
         Mockito.verify(professorRepository,
                         Mockito.times(offset))
