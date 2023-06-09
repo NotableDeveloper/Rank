@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ProfessorRepository extends JpaRepository<Professor, Long> {
+    boolean existsByNameAndDepartment_Id(String name, Long departmentId);
 }

@@ -3,8 +3,10 @@ package NotableDeveloper.rank.test.service;
 import NotableDeveloper.rank.domain.dto.CourseDto;
 import NotableDeveloper.rank.domain.dto.DepartmentDto;
 import NotableDeveloper.rank.domain.dto.EvaluationDto;
+import NotableDeveloper.rank.domain.dto.ProfessorDto;
 import NotableDeveloper.rank.domain.entity.Course;
 import NotableDeveloper.rank.domain.entity.Department;
+import NotableDeveloper.rank.domain.entity.Professor;
 import NotableDeveloper.rank.domain.enums.Semester;
 import NotableDeveloper.rank.domain.exceptiion.EvaluationAlreadyException;
 import NotableDeveloper.rank.repository.*;
@@ -289,5 +291,72 @@ public class DataInjectServiceTest {
                         slicedCode);
             }
         }
+    }
+
+    @Test
+    @DisplayName("강의 평가 데이터가 주입되는 과정에서 교수 정보가 주입된다.")
+    void 교수정보_주입_테스트(){
+        /*
+            Given :
+            이 테스트에서 저장되는 교수 정보는 setUp 메서드에서 준비한 강의 평가 데이터에 나오는 교수들이다.
+         */
+        ArrayList<ProfessorDto> evaluationProfessors =
+                (ArrayList<ProfessorDto>) evaluations.stream().map(evaluations ->
+                        new ProfessorDto(evaluations.getProfessorName(),
+                                evaluations.getCollege(),
+                                evaluations.getDepartment(),
+                                evaluations.getPosition()
+                        )).collect(Collectors.toList());
+        /*
+            When :
+            2023학년도 1학기 데이터를 최초로 주입하는 상황임을 가정하고, 그에 맞게 예외 처리가 되지 않도록 설정해준다.
+         */
+        Mockito.when(rankVersionRepository.existsByYearAndSemester(2023, Semester.FIRST))
+                .thenReturn(false);
+
+        long mockId = 1;
+
+        for(ProfessorDto professorDto : evaluationProfessors){
+            Department mockDepartment = new Department(
+                    professorDto.getCollege(),
+                    professorDto.getDepartment());
+
+            mockDepartment.setId(mockId++);
+
+            Mockito.when(departmentRepository.findByCollegeAndOriginalName(
+                    professorDto.getCollege(),
+                    professorDto.getDepartment()))
+                    .thenReturn(mockDepartment);
+
+            Mockito.when(professorRepository.existsByNameAndDepartment_Id(
+                            professorDto.getName(),
+                            mockDepartment.getId()
+                            ))
+                    .thenReturn(false)
+                    .thenReturn(true);
+        }
+
+
+        simpleInjectService.updateEvaluates(2023, Semester.FIRST, evaluations);
+
+        /*
+            Then :
+            department 조회가 준비한 데이터 크기만큼 이루어지는 지를 검증한다.
+            이미 DB에 저장된 교수인 지를 조회하는 메서드가 준비한 데이터 크기만큼 이루어지는 지를 검증한다.
+            DB에 교수를 저장하는 메서드가 준비한 데이터 중에 중복을 제외한 만큼 이루어지는 지를 검증한다.
+         */
+        Mockito.verify(departmentRepository,
+                    Mockito.times(evaluationProfessors.size())
+                ).findByCollegeAndOriginalName(Mockito.any(), Mockito.any());
+
+        Mockito.verify(professorRepository,
+                Mockito.times(evaluationProfessors.size())
+                ).existsByNameAndDepartment_Id(Mockito.any(), Mockito.any());
+
+        int offset = (int) evaluationProfessors.stream().distinct().count();
+
+        Mockito.verify(professorRepository,
+                        Mockito.times(offset))
+                .save(Mockito.any(Professor.class));
     }
 }
