@@ -27,7 +27,12 @@ public class CourseRepositoryTest {
         Course course = data.getCourses().get(0);
         courseRepository.save(course);
 
-        final Course findCourse = courseRepository.findByTitleAndOfferedYearAndSemester("객체지향 프로그래밍", 2023, Semester.FIRST);
+        final Course findCourse = courseRepository.findByTitleAndOfferedYearAndSemesterAndCode(
+                "객체지향 프로그래밍",
+                2023,
+                Semester.FIRST,
+                "12345678"
+                );
 
         Assertions.assertEquals("객체지향 프로그래밍", findCourse.getTitle());
         Assertions.assertEquals(2023, findCourse.getOfferedYear());

@@ -1,10 +1,7 @@
 package NotableDeveloper.rank.service;
 
 import NotableDeveloper.rank.domain.dto.*;
-import NotableDeveloper.rank.domain.entity.Course;
-import NotableDeveloper.rank.domain.entity.Department;
-import NotableDeveloper.rank.domain.entity.Professor;
-import NotableDeveloper.rank.domain.entity.RankVersion;
+import NotableDeveloper.rank.domain.entity.*;
 import NotableDeveloper.rank.domain.enums.Semester;
 import NotableDeveloper.rank.domain.exceptiion.EvaluationAlreadyException;
 import NotableDeveloper.rank.repository.*;
@@ -43,6 +40,7 @@ public class SimpleInjectService{
         saveDepartment();
         saveCourse();
         saveProfessor();
+        saveCourseProfessor();
     }
 
     private void saveDepartment(){
@@ -108,6 +106,29 @@ public class SimpleInjectService{
                         professorDto.getCollege(),
                         professorDepartment,
                         professorDto.getPosition()));
+            }
+        }
+    }
+
+    private void saveCourseProfessor(){
+        for(EvaluationDto evaluationDto : extractor.getEvaluations()){
+            if(!courseProfessorRepository.existsByCourse_TitleAndProfessor_Name(
+                    evaluationDto.getTitle(),
+                    evaluationDto.getProfessorName()
+            )){
+                Course course = courseRepository.findByTitleAndOfferedYearAndSemesterAndCode(
+                        evaluationDto.getTitle(),
+                        evaluationDto.getYear(),
+                        evaluationDto.getSemester(),
+                        evaluationDto.getCode().substring(0, 8)
+                );
+
+                Professor professor = professorRepository.findByNameAndDepartment_OriginalName(
+                        evaluationDto.getProfessorName(),
+                        evaluationDto.getDepartment()
+                );
+
+                courseProfessorRepository.save(new CourseProfessor(course, professor));
             }
         }
     }

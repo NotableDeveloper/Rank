@@ -7,6 +7,7 @@ import NotableDeveloper.rank.domain.dto.ProfessorDto;
 import NotableDeveloper.rank.domain.entity.Course;
 import NotableDeveloper.rank.domain.entity.Department;
 import NotableDeveloper.rank.domain.entity.Professor;
+import NotableDeveloper.rank.domain.entity.RankVersion;
 import NotableDeveloper.rank.domain.enums.Semester;
 import NotableDeveloper.rank.domain.exceptiion.EvaluationAlreadyException;
 import NotableDeveloper.rank.repository.*;
@@ -18,6 +19,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -356,5 +359,73 @@ public class DataInjectServiceTest {
         Mockito.verify(professorRepository,
                         Mockito.times(offset))
                 .save(Mockito.any(Professor.class));
+    }
+
+    @Test
+    @DisplayName("강의 평가 데이터가 주입되는 과정에서 강의-교수 정보가 주입된다.")
+    void 강의교수정보_주입_테스트(){
+        /*
+            Given :
+            이 테스트에서는 강의 - 교수 쌍의 정보가 주입되는 지를 테스트한다.
+         */
+        HashMap<String, String> courseProfessors = new HashMap<>();
+
+        evaluations.forEach(evaluation -> {
+            courseProfessors.put(evaluation.getTitle(), evaluation.getProfessorName());
+        });
+
+        /*
+            When :
+            중복 저장을 방지하는 예외가 발생하지 않도록 관련 메서드를 예외 처리해준다.
+            이후, 강의-교수 정보가 이미 저장되어 있는 지를 확인하는 메서드에 대해 사전에 처리해준다.
+         */
+
+        Mockito.when(rankVersionRepository.existsByYearAndSemester(2023, Semester.FIRST))
+                .thenReturn(false);
+
+        for(EvaluationDto evaluation : evaluations) {
+
+            Mockito.when(courseProfessorRepository.existsByCourse_TitleAndProfessor_Name(
+                            evaluation.getTitle(),
+                            evaluation.getProfessorName()))
+                    .thenReturn(false)
+                    .thenReturn(true);
+        }
+
+        simpleInjectService.updateEvaluates(2023, Semester.FIRST);
+
+        /*
+            Then :
+            강의-교수 정보가 이미 저장되어 있는 지를 확인하는 메서드가 미리 준비한 강의 정보의 수만큼 호출되는 지를 검증한다.
+            강의-교수 정보가 중복(분반)을 제외한 만큼 저장되는 지를 검증한다.
+            강의-교수 정보를 저장하는 과정에서 강의와 교수 정보를 가져오는 메서드가 올바른 횟수만큼 호출되는 지를 검증한다.
+         */
+        Mockito.verify(courseProfessorRepository,
+                        Mockito.times(evaluations.size()))
+                .existsByCourse_TitleAndProfessor_Name(
+                        Mockito.any(),
+                        Mockito.any());
+
+        Mockito.verify(courseProfessorRepository,
+                Mockito.times(courseProfessors.size()))
+                .save(Mockito.any());
+
+        for(EvaluationDto evaluation : evaluations){
+            Mockito.verify(courseRepository,
+                    Mockito.times(1))
+                    .findByTitleAndOfferedYearAndSemesterAndCode(
+                            evaluation.getTitle(),
+                            evaluation.getYear(),
+                            evaluation.getSemester(),
+                            evaluation.getCode().substring(0, 8)
+                    );
+
+            Mockito.verify(professorRepository,
+                    Mockito.atLeastOnce())
+                    .findByNameAndDepartment_OriginalName(
+                            evaluation.getProfessorName(),
+                            evaluation.getDepartment()
+                    );
+        }
     }
 }
