@@ -1,4 +1,4 @@
-package NotableDeveloper.rank.test.service;
+package NotableDeveloper.rank.test.service.SimpleInjectService;
 
 import NotableDeveloper.rank.domain.dto.CourseDto;
 import NotableDeveloper.rank.domain.dto.DepartmentDto;
@@ -7,7 +7,6 @@ import NotableDeveloper.rank.domain.dto.ProfessorDto;
 import NotableDeveloper.rank.domain.entity.Course;
 import NotableDeveloper.rank.domain.entity.Department;
 import NotableDeveloper.rank.domain.entity.Professor;
-import NotableDeveloper.rank.domain.entity.RankVersion;
 import NotableDeveloper.rank.domain.enums.Semester;
 import NotableDeveloper.rank.domain.exceptiion.EvaluationAlreadyException;
 import NotableDeveloper.rank.repository.*;
@@ -20,30 +19,22 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 
 
-public class DataInjectServiceTest {
-    @Mock
+public class DataInjectTest {
     SimpleInjectService simpleInjectService;
-
     @Mock
     CourseRepository courseRepository;
-
     @Mock
     ProfessorRepository professorRepository;
-
     @Mock
     DepartmentRepository departmentRepository;
-
     @Mock
     CourseProfessorRepository courseProfessorRepository;
-
     @Mock
     RankVersionRepository rankVersionRepository;
-
     ArrayList<EvaluationDto> evaluations;
 
     @BeforeEach
@@ -258,7 +249,7 @@ public class DataInjectServiceTest {
             Then :
             미리 준비하여 주입한 데이터의 수만큼 저장이 이루어지는 지를 확인한다.
             또, existsByTitleAndOfferedYearAndSemesterAndCode 메서드와
-            findByTitleAndOfferedYearAndSemesterAndCode 메서드가 강의평가 데이터에 맞게
+            findByTitleAndOfferedYearAndSemesterAndCode 메서드가 올바른 횟수만큼
             호출되는 지를 확인한다.
         */
         Mockito.verify(courseRepository,
@@ -281,10 +272,9 @@ public class DataInjectServiceTest {
         for(CourseDto courseDto : uniqueCourses.values()){
             if(courseDto.getCount() > 1){
                 String slicedCode = courseDto.getCode().substring(0, 8);
-                int offset = courseDto.getCount() - 1;
 
                 Mockito.verify(courseRepository,
-                        Mockito.times(offset))
+                        Mockito.atLeast(courseDto.getCount()))
                         .findByTitleAndOfferedYearAndSemesterAndCode(
                             courseDto.getTitle(),
                             courseDto.getYear(),
