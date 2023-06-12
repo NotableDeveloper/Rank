@@ -1,4 +1,4 @@
-package NotableDeveloper.rank.test.repository;
+package NotableDeveloper.rank.test;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

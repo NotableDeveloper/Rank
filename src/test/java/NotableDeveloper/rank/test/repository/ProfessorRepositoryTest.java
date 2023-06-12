@@ -4,10 +4,7 @@ import NotableDeveloper.rank.domain.entity.Professor;
 import NotableDeveloper.rank.repository.DepartmentRepository;
 import NotableDeveloper.rank.repository.ProfessorRepository;
 import NotableDeveloper.rank.test.data.RankData;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
@@ -22,11 +19,13 @@ public class ProfessorRepositoryTest {
     @Autowired
     DepartmentRepository departmentRepository;
 
-    static RankData data = new RankData();
+    static RankData data;
 
     @BeforeEach
     @DisplayName("교수의 소속 학과 정보를 DB에 저장한다.")
-    void saveDepartment(){
+    void setUp(){
+        data = new RankData();
+        departmentRepository.deleteAll();
         departmentRepository.saveAll(data.getDepartments());
     }
 

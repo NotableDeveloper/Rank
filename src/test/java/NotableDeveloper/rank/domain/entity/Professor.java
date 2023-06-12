@@ -23,7 +23,8 @@ public class Professor {
     @Column(nullable = false)
     private String college;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "department_id")
     private Department department;
 
     @Column(nullable = false)

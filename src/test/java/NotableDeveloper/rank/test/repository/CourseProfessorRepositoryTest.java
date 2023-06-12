@@ -2,8 +2,6 @@ package NotableDeveloper.rank.test.repository;
 
 import NotableDeveloper.rank.domain.entity.Course;
 import NotableDeveloper.rank.domain.entity.CourseProfessor;
-import NotableDeveloper.rank.domain.entity.Professor;
-import NotableDeveloper.rank.domain.enums.Semester;
 import NotableDeveloper.rank.repository.CourseProfessorRepository;
 import NotableDeveloper.rank.repository.CourseRepository;
 import NotableDeveloper.rank.repository.DepartmentRepository;
