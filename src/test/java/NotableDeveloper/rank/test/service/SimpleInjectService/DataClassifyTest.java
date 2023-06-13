@@ -46,7 +46,7 @@ public class DataClassifyTest {
         simpleInjectService.setDepartmentRepository(departmentRepository);
         simpleInjectService.setRankVersionRepository(rankVersionRepository);
 
-        simpleInjectService.setExtractor(extract);
+        //simpleInjectService.setClassification();
     }
 
     @Test

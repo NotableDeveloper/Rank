@@ -29,10 +29,10 @@ public class SimpleInjectService{
     SimpleEvaluationExtract extractor;
     SimpleEvaluationClassify classification;
     public void saveEvaluates(int year, Semester semester) {
-        if(rankVersionRepository.existsByYearAndSemester(year, semester))
+        if(rankVersionRepository.existsByYearAndSemesterAndInjectedIsTrue(year, semester))
             throw new EvaluationAlreadyException();
 
-        rankVersionRepository.save(new RankVersion(year, semester));
+        RankVersion rankVersion = rankVersionRepository.save(new RankVersion(year, semester));
 
         extractor.extractEvaluation();
 
@@ -40,6 +40,9 @@ public class SimpleInjectService{
         saveCourse();
         saveProfessor();
         saveCourseProfessor();
+
+        rankVersion.setInjected(true);
+        rankVersionRepository.save(rankVersion);
     }
 
     private void saveDepartment(){
@@ -130,5 +133,9 @@ public class SimpleInjectService{
                 courseProfessorRepository.save(new CourseProfessor(course, professor));
             }
         }
+    }
+
+    public void updateEvaluates(int year, Semester semester){
+
     }
 }
