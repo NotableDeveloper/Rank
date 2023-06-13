@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository;
 public interface RankVersionRepository extends JpaRepository<RankVersion, Long> {
     boolean existsByYearAndSemesterAndInjectedIsTrue(int year, Semester semester);
     boolean existsByYearAndSemesterAndCalculatedIsTrue(int year, Semester semester);
+
+    RankVersion findByYearAndSemester(int year, Semester semester);
 }

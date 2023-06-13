@@ -3,7 +3,9 @@ package NotableDeveloper.rank.service;
 import NotableDeveloper.rank.domain.dto.*;
 import NotableDeveloper.rank.domain.entity.*;
 import NotableDeveloper.rank.domain.enums.Semester;
+import NotableDeveloper.rank.domain.exceptiion.ClassifyAlreadyException;
 import NotableDeveloper.rank.domain.exceptiion.EvaluationAlreadyException;
+import NotableDeveloper.rank.domain.exceptiion.EvaluationNotFoundException;
 import NotableDeveloper.rank.repository.*;
 
 import lombok.AllArgsConstructor;
@@ -136,6 +138,14 @@ public class SimpleInjectService{
     }
 
     public void updateEvaluates(int year, Semester semester){
+        if(!rankVersionRepository.existsByYearAndSemesterAndInjectedIsTrue(year, semester))
+            throw new EvaluationNotFoundException();
 
+        if(rankVersionRepository.existsByYearAndSemesterAndCalculatedIsTrue(year, semester))
+            throw new ClassifyAlreadyException();
+
+        RankVersion rankVersion = rankVersionRepository.findByYearAndSemester(year, semester);
+        rankVersion.setCalculated(true);
+        rankVersionRepository.save(rankVersion);
     }
 }
