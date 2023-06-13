@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 @Service
 @Getter
 @Setter
-@AllArgsConstructor
 public class SimpleInjectService{
     CourseRepository courseRepository;
 
@@ -28,8 +27,8 @@ public class SimpleInjectService{
     RankVersionRepository rankVersionRepository;
 
     SimpleEvaluationExtract extractor;
-
-    public void updateEvaluates(int year, Semester semester) {
+    SimpleEvaluationClassify classification;
+    public void saveEvaluates(int year, Semester semester) {
         if(rankVersionRepository.existsByYearAndSemester(year, semester))
             throw new EvaluationAlreadyException();
 

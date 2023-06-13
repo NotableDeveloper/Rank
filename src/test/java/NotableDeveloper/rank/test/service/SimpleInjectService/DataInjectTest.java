@@ -74,14 +74,14 @@ public class DataInjectTest {
         SimpleEvaluationExtract extract = new SimpleEvaluationExtract();
         extract.setEvaluations(evaluations);
 
-        simpleInjectService = new SimpleInjectService(
-                courseRepository,
-                professorRepository,
-                departmentRepository,
-                courseProfessorRepository,
-                rankVersionRepository,
-                extract
-        );
+        simpleInjectService = new SimpleInjectService();
+        simpleInjectService.setCourseRepository(courseRepository);
+        simpleInjectService.setProfessorRepository(professorRepository);
+        simpleInjectService.setCourseProfessorRepository(courseProfessorRepository);
+        simpleInjectService.setDepartmentRepository(departmentRepository);
+        simpleInjectService.setRankVersionRepository(rankVersionRepository);
+
+        simpleInjectService.setExtractor(extract);
     }
 
     @Test
@@ -120,10 +120,10 @@ public class DataInjectTest {
             이후 호출하는 updateEvaluates 메서드는 예외가 발생하게 된다.
          */
         Assertions.assertDoesNotThrow(() ->
-                simpleInjectService.updateEvaluates(year, semester));
+                simpleInjectService.saveEvaluates(year, semester));
 
         Assertions.assertThrows(EvaluationAlreadyException.class,
-                () -> simpleInjectService.updateEvaluates(year, semester));
+                () -> simpleInjectService.saveEvaluates(year, semester));
 
     }
 
@@ -148,7 +148,7 @@ public class DataInjectTest {
         Mockito.when(rankVersionRepository.existsByYearAndSemester(2023, Semester.FIRST))
                 .thenReturn(false);
 
-        simpleInjectService.updateEvaluates(2023, Semester.FIRST);
+        simpleInjectService.saveEvaluates(2023, Semester.FIRST);
 
         /*
             Then :
@@ -243,7 +243,7 @@ public class DataInjectTest {
             )).thenReturn(findCourse);
         }
 
-        simpleInjectService.updateEvaluates(2023, Semester.FIRST);
+        simpleInjectService.saveEvaluates(2023, Semester.FIRST);
 
         /*
             Then :
@@ -328,7 +328,7 @@ public class DataInjectTest {
         }
 
 
-        simpleInjectService.updateEvaluates(2023, Semester.FIRST);
+        simpleInjectService.saveEvaluates(2023, Semester.FIRST);
 
         /*
             Then :
@@ -382,7 +382,7 @@ public class DataInjectTest {
                     .thenReturn(true);
         }
 
-        simpleInjectService.updateEvaluates(2023, Semester.FIRST);
+        simpleInjectService.saveEvaluates(2023, Semester.FIRST);
 
         /*
             Then :

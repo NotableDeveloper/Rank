@@ -4,7 +4,9 @@ import NotableDeveloper.rank.domain.dto.EvaluationDto;
 import NotableDeveloper.rank.repository.*;
 import NotableDeveloper.rank.service.SimpleEvaluationExtract;
 import NotableDeveloper.rank.service.SimpleInjectService;
+import NotableDeveloper.rank.test.data.SampleCsvExtract;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
@@ -32,16 +34,23 @@ public class DataClassifyTest {
         courseProfessorRepository = Mockito.mock(CourseProfessorRepository.class);
         rankVersionRepository = Mockito.mock(RankVersionRepository.class);
 
+        SampleCsvExtract  sampleCsv = new SampleCsvExtract();
+        evaluations = sampleCsv.extractEvaluation();
         SimpleEvaluationExtract extract = new SimpleEvaluationExtract();
         extract.setEvaluations(evaluations);
 
-        simpleInjectService = new SimpleInjectService(
-                courseRepository,
-                professorRepository,
-                departmentRepository,
-                courseProfessorRepository,
-                rankVersionRepository,
-                extract
-        );
+        simpleInjectService = new SimpleInjectService();
+        simpleInjectService.setCourseRepository(courseRepository);
+        simpleInjectService.setProfessorRepository(professorRepository);
+        simpleInjectService.setCourseProfessorRepository(courseProfessorRepository);
+        simpleInjectService.setDepartmentRepository(departmentRepository);
+        simpleInjectService.setRankVersionRepository(rankVersionRepository);
+
+        simpleInjectService.setExtractor(extract);
+    }
+
+    @Test
+    void TestMethod(){
+
     }
 }
