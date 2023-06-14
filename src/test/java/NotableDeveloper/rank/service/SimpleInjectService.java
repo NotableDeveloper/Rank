@@ -8,7 +8,6 @@ import NotableDeveloper.rank.domain.exceptiion.EvaluationAlreadyException;
 import NotableDeveloper.rank.domain.exceptiion.EvaluationNotFoundException;
 import NotableDeveloper.rank.repository.*;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Service;
@@ -143,6 +142,7 @@ public class SimpleInjectService{
 
         if(rankVersionRepository.existsByYearAndSemesterAndCalculatedIsTrue(year, semester))
             throw new ClassifyAlreadyException();
+
 
         RankVersion rankVersion = rankVersionRepository.findByYearAndSemester(year, semester);
         rankVersion.setCalculated(true);

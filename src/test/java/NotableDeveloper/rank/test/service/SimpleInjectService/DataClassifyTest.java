@@ -1,11 +1,13 @@
 package NotableDeveloper.rank.test.service.SimpleInjectService;
 
+import NotableDeveloper.rank.domain.dto.CourseDto;
 import NotableDeveloper.rank.domain.dto.EvaluationDto;
 import NotableDeveloper.rank.domain.exceptiion.ClassifyAlreadyException;
 import NotableDeveloper.rank.domain.entity.RankVersion;
 import NotableDeveloper.rank.domain.enums.Semester;
 import NotableDeveloper.rank.domain.exceptiion.EvaluationNotFoundException;
 import NotableDeveloper.rank.repository.*;
+import NotableDeveloper.rank.service.SimpleEvaluationClassify;
 import NotableDeveloper.rank.service.SimpleEvaluationExtract;
 import NotableDeveloper.rank.service.SimpleInjectService;
 import NotableDeveloper.rank.test.data.SampleCsvExtract;
@@ -45,6 +47,9 @@ public class DataClassifyTest {
         evaluations = sampleCsv.extractEvaluation();
         SimpleEvaluationExtract extract = new SimpleEvaluationExtract();
         extract.setEvaluations(evaluations);
+        extract.extractEvaluation();
+
+        SimpleEvaluationClassify simpleEvaluationClassify = new SimpleEvaluationClassify(extract.getCourses());
 
         simpleInjectService = new SimpleInjectService();
         simpleInjectService.setCourseRepository(courseRepository);
@@ -53,7 +58,7 @@ public class DataClassifyTest {
         simpleInjectService.setDepartmentRepository(departmentRepository);
         simpleInjectService.setRankVersionRepository(rankVersionRepository);
 
-        //simpleInjectService.setClassification();
+        simpleInjectService.setClassification(simpleEvaluationClassify);
 
         /*
             메서드 테스트 과정에서 무조건 rankVersionRepository의 existsByYearAndSemesterAndInjectedIsTrue 메서드와
@@ -102,5 +107,10 @@ public class DataClassifyTest {
 
         Assertions.assertThrows(ClassifyAlreadyException.class,
                 () -> simpleInjectService.updateEvaluates(year, semester));
+    }
+
+    @Test
+    void test(){
+
     }
 }
