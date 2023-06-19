@@ -68,7 +68,7 @@ public class DataClassifyTest {
                 .thenReturn(true)
                 .thenReturn(false);
 
-        Mockito.when(rankVersionRepository.existsByYearAndSemesterAndCalculatedIsTrue(year, semester))
+        Mockito.when(rankVersionRepository.existsByYearAndSemesterAndClassifiedCourseIsTrue(year, semester))
                 .thenReturn(false)
                 .thenReturn(true);
 
@@ -93,8 +93,8 @@ public class DataClassifyTest {
     }
 
     @Test
-    @DisplayName("강의, 교수 데이터에 등급을 부여하는 중복하여 수행하면 예외가 발생한다.")
-    void 티어부여_중복방지_테스트(){
+    @DisplayName("강의 데이터에 등급을 부여하는 행동을 중복으로 수행하면 예외가 발생한다.")
+    void 강의_등급_중복방지_테스트(){
         /*
             updateEvaluates()가 같은 학기에 두 번 호출 되었고, 첫 번째 호출에서
             성공적으로 강의평가 데이터를 주입하였다면 두 번째 호출에서는 예외가 발생해야 한다.
@@ -107,6 +107,12 @@ public class DataClassifyTest {
 
         Assertions.assertThrows(ClassifyAlreadyException.class,
                 () -> simpleInjectService.updateCourses(year, semester));
+    }
+
+    @Test
+    @DisplayName("교수 데이터에 등급을 부여하는 행동을 중복으로 수행하면 예외가 발생한다.")
+    void 교수_등급_중복방지_테스트(){
+
     }
 
     @Test

@@ -144,7 +144,7 @@ public class SimpleInjectService{
         if(!rankVersionRepository.existsByYearAndSemesterAndInjectedIsTrue(year, semester))
             throw new EvaluationNotFoundException();
 
-        if(rankVersionRepository.existsByYearAndSemesterAndCalculatedIsTrue(year, semester))
+        if(rankVersionRepository.existsByYearAndSemesterAndClassifiedCourseIsTrue(year, semester))
             throw new ClassifyAlreadyException();
 
         /*
@@ -186,7 +186,7 @@ public class SimpleInjectService{
             findPreviousOrSameVersions 메서드로 받아서 setCalculated 메서드로 Calculated 수정해서 저장하기
          */
         List<RankVersion> rankVersions = rankVersionRepository.findPreviousOrSameVersions(year, semester);
-        rankVersions.forEach(rankVersion -> rankVersion.setCalculated(true));
+        rankVersions.forEach(rankVersion -> rankVersion.setClassifiedCourse(true));
         rankVersionRepository.saveAll(rankVersions);
     }
 }

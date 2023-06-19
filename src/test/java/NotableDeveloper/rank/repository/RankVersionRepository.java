@@ -11,8 +11,8 @@ import java.util.List;
 @Repository
 public interface RankVersionRepository extends JpaRepository<RankVersion, Long> {
     boolean existsByYearAndSemesterAndInjectedIsTrue(int year, Semester semester);
-    boolean existsByYearAndSemesterAndCalculatedIsTrue(int year, Semester semester);
-
+    boolean existsByYearAndSemesterAndClassifiedCourseIsTrue(int year, Semester semester);
+    boolean existsByYearAndSemesterAndClassifiedProfessorIsTrue(int year, Semester semester);
     RankVersion findByYearAndSemester(int year, Semester semester);
 
     @Query("SELECT rv FROM RankVersion rv WHERE rv.year < :year OR (rv.year = :year AND rv.semester = :semester)")

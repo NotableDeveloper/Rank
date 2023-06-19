@@ -26,12 +26,16 @@ public class RankVersion {
     boolean injected;
 
     @Column(nullable = false)
-    boolean calculated;
+    boolean classifiedCourse;
+
+    @Column(nullable = false)
+    boolean classifiedProfessor;
 
     public RankVersion(int year, Semester semester) {
         this.year = year;
         this.semester = semester;
         this.injected = false;
-        this.calculated = false;
+        this.classifiedCourse = false;
+        this.classifiedProfessor = false;
     }
 }
