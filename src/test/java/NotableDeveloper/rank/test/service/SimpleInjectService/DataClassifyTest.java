@@ -2,6 +2,8 @@ package NotableDeveloper.rank.test.service.SimpleInjectService;
 
 import NotableDeveloper.rank.domain.dto.CourseDto;
 import NotableDeveloper.rank.domain.dto.EvaluationDto;
+import NotableDeveloper.rank.domain.entity.Course;
+import NotableDeveloper.rank.domain.enums.Tier;
 import NotableDeveloper.rank.domain.exceptiion.ClassifyAlreadyException;
 import NotableDeveloper.rank.domain.entity.RankVersion;
 import NotableDeveloper.rank.domain.enums.Semester;
@@ -11,14 +13,12 @@ import NotableDeveloper.rank.service.SimpleEvaluationClassify;
 import NotableDeveloper.rank.service.SimpleEvaluationExtract;
 import NotableDeveloper.rank.service.SimpleInjectService;
 import NotableDeveloper.rank.test.data.SampleCsvExtract;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import java.util.ArrayList;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class DataClassifyTest {
     SimpleInjectService simpleInjectService;
@@ -49,7 +49,7 @@ public class DataClassifyTest {
         extract.setEvaluations(evaluations);
         extract.extractEvaluation();
 
-        SimpleEvaluationClassify simpleEvaluationClassify = new SimpleEvaluationClassify(extract.getCourses());
+        SimpleEvaluationClassify simpleEvaluationClassify = new SimpleEvaluationClassify();
 
         simpleInjectService = new SimpleInjectService();
         simpleInjectService.setCourseRepository(courseRepository);
@@ -57,7 +57,7 @@ public class DataClassifyTest {
         simpleInjectService.setCourseProfessorRepository(courseProfessorRepository);
         simpleInjectService.setDepartmentRepository(departmentRepository);
         simpleInjectService.setRankVersionRepository(rankVersionRepository);
-
+        simpleInjectService.setExtractor(extract);
         simpleInjectService.setClassification(simpleEvaluationClassify);
 
         /*
@@ -86,10 +86,10 @@ public class DataClassifyTest {
             예외가 발생한다.
          */
         Assertions.assertDoesNotThrow(() ->
-                simpleInjectService.updateEvaluates(year, semester));
+                simpleInjectService.updateCourses(year, semester));
 
         Assertions.assertThrows(EvaluationNotFoundException.class,
-                () -> simpleInjectService.updateEvaluates(year, semester));
+                () -> simpleInjectService.updateCourses(year, semester));
     }
 
     @Test
@@ -103,14 +103,113 @@ public class DataClassifyTest {
                 .thenReturn(true);
 
         Assertions.assertDoesNotThrow(() ->
-                simpleInjectService.updateEvaluates(year, semester));
+                simpleInjectService.updateCourses(year, semester));
 
         Assertions.assertThrows(ClassifyAlreadyException.class,
-                () -> simpleInjectService.updateEvaluates(year, semester));
+                () -> simpleInjectService.updateCourses(year, semester));
     }
 
     @Test
-    void test(){
+    @DisplayName("강의 데이터에 등급을 부여할 때, 백분율을 계산한다.")
+    void 강의_등급_정상부여_테스트(){
+        /*
+            강의 데이터에 등급을 부여할 때, 저장될 것으로 예상되는 데이터들을 준비한다.
+            expectedCourses는 중복되지 않는(= 분반을 고려한) 강의들을 저장한 List이고,
+            courses는 중복을 포함하는(= 분반이 분반을 고려하지 않은) 강의들을 저장한 List이다.
+         */
+        ArrayList<CourseDto> expectedCourses = new ArrayList<>();
+        Map<List<Object>, CourseDto> keyMap = new HashMap<>();
+        List<CourseDto> courses = simpleInjectService.getExtractor().getCourses();
 
+        courses.forEach(course -> {
+            List<Object> key = Arrays.asList(course.getTitle(),
+                    course.getYear(),
+                    course.getCode(),
+                    course.getSemester()
+                    );
+
+            if(keyMap.containsKey(key)){
+                CourseDto existingCourse = keyMap.get(key);
+                existingCourse.setCount(existingCourse.getCount() + 1);
+                existingCourse.setRating(existingCourse.getRating() + course.getRating());
+            }
+
+            else{
+                keyMap.put(key, course);
+                expectedCourses.add(course);
+            }
+        });
+
+        expectedCourses.forEach(course -> course.setAverage(course.getRating() / course.getCount()));
+        Collections.sort(expectedCourses);
+
+        /*
+            expectedCourses에 등급을 부여한다.
+         */
+        int totalCourses = expectedCourses.size();
+
+        for (int i = 0; i < totalCourses; i++) {
+            float percentage = (float)(i + 1) / totalCourses * 100;
+
+            if(0.0F <= percentage && percentage <= 30.00F)
+                expectedCourses.get(i).setTier(Tier.A);
+
+            else if(30.00F < percentage && percentage <= 70.00F)
+                expectedCourses.get(i).setTier(Tier.B);
+
+            else if(70.00F < percentage && percentage <= 85.00F)
+                expectedCourses.get(i).setTier(Tier.C);
+
+            else
+                expectedCourses.get(i).setTier(Tier.D);
+        }
+
+        /*
+            Mock 객체인 courseRepository 강의를 검색하는 메서드에 대한 처리를 한다.
+         */
+        List<Course> findCourses = courses.stream()
+                .map(courseDto ->
+                        new Course(courseDto.getTitle(),
+                                courseDto.getYear(),
+                                courseDto.getSemester(),
+                                courseDto.getCode(),
+                                courseDto.getRating())
+                ).collect(Collectors.toList());
+
+        Mockito.when(courseRepository.findAllPreviousOrSameVersions(year, semester))
+                        .thenReturn(findCourses);
+
+        for(CourseDto expectedCourse : expectedCourses){
+            Course findCourse = new Course(
+                    expectedCourse.getTitle(),
+                    expectedCourse.getYear(),
+                    expectedCourse.getSemester(),
+                    expectedCourse.getCode(),
+                    expectedCourse.getRating()
+            );
+
+            Mockito.when(courseRepository.findByTitleAndOfferedYearAndSemesterAndCode(
+                    expectedCourse.getTitle(),
+                    expectedCourse.getYear(),
+                    expectedCourse.getSemester(),
+                    expectedCourse.getCode()
+            )).thenReturn(findCourse);
+        }
+
+        simpleInjectService.updateCourses(year, semester);
+
+        /*
+            expectedCourses와 DB에 저장될 savedCourses를 비교하여 검증한다.
+            또, DB 저장이 expectedCourses의 size만큼 호출되는 지를 검증한다.
+         */
+        List<CourseDto> savedCourses = simpleInjectService.getClassification().getUniqueCourses();
+
+        for(CourseDto expected : expectedCourses){
+            Assertions.assertEquals(true, savedCourses.contains(expected));
+        }
+
+        Mockito.verify(courseRepository,
+                Mockito.times(expectedCourses.size()))
+                .save(Mockito.any());
     }
 }

@@ -12,6 +12,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 
 @Service
 @Getter
@@ -29,6 +32,7 @@ public class SimpleInjectService{
 
     SimpleEvaluationExtract extractor;
     SimpleEvaluationClassify classification;
+
     public void saveEvaluates(int year, Semester semester) {
         if(rankVersionRepository.existsByYearAndSemesterAndInjectedIsTrue(year, semester))
             throw new EvaluationAlreadyException();
@@ -136,16 +140,53 @@ public class SimpleInjectService{
         }
     }
 
-    public void updateEvaluates(int year, Semester semester){
+    public void updateCourses(int year, Semester semester){
         if(!rankVersionRepository.existsByYearAndSemesterAndInjectedIsTrue(year, semester))
             throw new EvaluationNotFoundException();
 
         if(rankVersionRepository.existsByYearAndSemesterAndCalculatedIsTrue(year, semester))
             throw new ClassifyAlreadyException();
 
+        /*
+            To do :
+            입력으로 받은 학년, 학기 이래의 강의 평가 데이터를 기준으로 교수와 강의 데이터에
+            티어 부여하기
+         */
+        List<CourseDto> courses = courseRepository.findAllPreviousOrSameVersions(year, semester)
+                .stream()
+                .map(course ->
+                    new CourseDto(
+                            course.getTitle(),
+                            course.getOfferedYear(),
+                            course.getSemester(),
+                            course.getCode(),
+                            course.getRating()
+                    )
+                ).collect(Collectors.toList());
 
-        RankVersion rankVersion = rankVersionRepository.findByYearAndSemester(year, semester);
-        rankVersion.setCalculated(true);
-        rankVersionRepository.save(rankVersion);
+        classification.classifyCourse(courses);
+
+        courses = classification.getUniqueCourses();
+
+        courses.forEach(courseDto -> {
+            Course updateCourse = courseRepository.findByTitleAndOfferedYearAndSemesterAndCode(
+                    courseDto.getTitle(),
+                    courseDto.getYear(),
+                    courseDto.getSemester(),
+                    courseDto.getCode()
+            );
+
+            updateCourse.setRating(courseDto.getAverage());
+            updateCourse.setTier(courseDto.getTier());
+
+            courseRepository.save(updateCourse);
+        });
+
+        /*
+            findPreviousOrSameVersions 메서드로 받아서 setCalculated 메서드로 Calculated 수정해서 저장하기
+         */
+        List<RankVersion> rankVersions = rankVersionRepository.findPreviousOrSameVersions(year, semester);
+        rankVersions.forEach(rankVersion -> rankVersion.setCalculated(true));
+        rankVersionRepository.saveAll(rankVersions);
     }
 }
