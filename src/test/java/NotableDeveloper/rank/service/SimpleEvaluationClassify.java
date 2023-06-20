@@ -29,6 +29,13 @@ public class SimpleEvaluationClassify implements EvaluationClassify {
         assignCourseTier();
     }
 
+    @Override
+    public void classifyProfessor(List<ProfessorDto> professors) {
+        distinctProfessor(professors);
+        calculateProfessorPercentage();
+        assignProfessorTier();
+    }
+
     private void distinctCourses(List<CourseDto> courses) {
         Map<List<Object>, CourseDto> courseMap = new HashMap<>();
 
@@ -74,6 +81,10 @@ public class SimpleEvaluationClassify implements EvaluationClassify {
         }
     }
 
+    private void calculateProfessorPercentage(){
+
+    }
+
     private void assignCourseTier(){
         Collections.sort(uniqueCourses);
 
@@ -94,5 +105,9 @@ public class SimpleEvaluationClassify implements EvaluationClassify {
             else
                 uniqueCourses.get(i).setTier(Tier.D);
         }
+    }
+
+    private void assignProfessorTier(){
+
     }
 }

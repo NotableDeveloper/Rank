@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface EvaluationClassify {
     public void classifyCourse(List<CourseDto> courses);
+
+    public void classifyProfessor(List<ProfessorDto> professors);
 }
