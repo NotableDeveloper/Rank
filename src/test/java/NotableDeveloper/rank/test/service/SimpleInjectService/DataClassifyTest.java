@@ -72,6 +72,10 @@ public class DataClassifyTest {
                 .thenReturn(false)
                 .thenReturn(true);
 
+        Mockito.when(rankVersionRepository.existsByYearAndSemesterAndClassifiedProfessorIsTrue(year, semester))
+                .thenReturn(false)
+                .thenReturn(true);
+
         Mockito.when(rankVersionRepository.findByYearAndSemester(year, semester))
                 .thenReturn(new RankVersion(year, semester));
 
@@ -82,7 +86,7 @@ public class DataClassifyTest {
     @DisplayName("등급을 부여하기 이전에 강의 정보가 주입되어 있지 않으면 예외가 발생한다.")
     void 강의정보_주입되지_않은경우_예외발생_테스트(){
         /*
-            updateEvaluates()를 호출할 때, 사전에 강의 정보가 주입되어 있지 않으면
+            updateCourses, updateProfessors를 호출할 때, 사전에 강의 정보가 주입되어 있지 않으면
             예외가 발생한다.
          */
         Assertions.assertDoesNotThrow(() ->
@@ -96,7 +100,7 @@ public class DataClassifyTest {
     @DisplayName("강의 데이터에 등급을 부여하는 행동을 중복으로 수행하면 예외가 발생한다.")
     void 강의_등급_중복방지_테스트(){
         /*
-            updateEvaluates()가 같은 학기에 두 번 호출 되었고, 첫 번째 호출에서
+            updateCourses 메서드가 같은 학기에 두 번 호출 되었고, 첫 번째 호출에서
             성공적으로 강의평가 데이터를 주입하였다면 두 번째 호출에서는 예외가 발생해야 한다.
          */
         Mockito.when(rankVersionRepository.existsByYearAndSemesterAndInjectedIsTrue(year, semester))
@@ -112,7 +116,18 @@ public class DataClassifyTest {
     @Test
     @DisplayName("교수 데이터에 등급을 부여하는 행동을 중복으로 수행하면 예외가 발생한다.")
     void 교수_등급_중복방지_테스트(){
+        /*
+            updateProfessors 메서드가 같은 학기에 두 번 호출 되었고, 첫 번째 호출에서
+            성공적으로 강의평가 데이터를 주입하였다면 두 번째 호출에서는 예외가 발생해야 한다.
+         */
+        Mockito.when(rankVersionRepository.existsByYearAndSemesterAndInjectedIsTrue(year, semester))
+                .thenReturn(true);
 
+        Assertions.assertDoesNotThrow(() ->
+                simpleInjectService.updateProfessors(year, semester));
+
+        Assertions.assertThrows(ClassifyAlreadyException.class,
+                () -> simpleInjectService.updateProfessors(year, semester));
     }
 
     @Test

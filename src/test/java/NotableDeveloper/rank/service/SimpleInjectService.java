@@ -182,11 +182,20 @@ public class SimpleInjectService{
             courseRepository.save(updateCourse);
         });
 
-        /*
-            findPreviousOrSameVersions 메서드로 받아서 setCalculated 메서드로 Calculated 수정해서 저장하기
-         */
         List<RankVersion> rankVersions = rankVersionRepository.findPreviousOrSameVersions(year, semester);
         rankVersions.forEach(rankVersion -> rankVersion.setClassifiedCourse(true));
+        rankVersionRepository.saveAll(rankVersions);
+    }
+
+    public void updateProfessors(int year, Semester semester){
+        if(!rankVersionRepository.existsByYearAndSemesterAndInjectedIsTrue(year, semester))
+            throw new EvaluationNotFoundException();
+
+        if(rankVersionRepository.existsByYearAndSemesterAndClassifiedProfessorIsTrue(year, semester))
+            throw new ClassifyAlreadyException();
+
+        List<RankVersion> rankVersions = rankVersionRepository.findPreviousOrSameVersions(year, semester);
+        rankVersions.forEach(rankVersion -> rankVersion.setClassifiedProfessor(true));
         rankVersionRepository.saveAll(rankVersions);
     }
 }
