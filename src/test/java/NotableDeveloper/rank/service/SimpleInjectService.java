@@ -8,6 +8,8 @@ import NotableDeveloper.rank.domain.exceptiion.EvaluationAlreadyException;
 import NotableDeveloper.rank.domain.exceptiion.EvaluationNotFoundException;
 import NotableDeveloper.rank.repository.*;
 
+import NotableDeveloper.rank.service.implement.SimpleEvaluationClassify;
+import NotableDeveloper.rank.service.implement.SimpleEvaluationExtract;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Service;

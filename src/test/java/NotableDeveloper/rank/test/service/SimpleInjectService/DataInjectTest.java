@@ -11,7 +11,7 @@ import NotableDeveloper.rank.domain.entity.RankVersion;
 import NotableDeveloper.rank.domain.enums.Semester;
 import NotableDeveloper.rank.domain.exceptiion.EvaluationAlreadyException;
 import NotableDeveloper.rank.repository.*;
-import NotableDeveloper.rank.service.SimpleEvaluationExtract;
+import NotableDeveloper.rank.service.implement.SimpleEvaluationExtract;
 import NotableDeveloper.rank.service.SimpleInjectService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
