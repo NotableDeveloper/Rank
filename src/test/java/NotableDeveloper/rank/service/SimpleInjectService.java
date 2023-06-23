@@ -147,11 +147,6 @@ public class SimpleInjectService{
         if(rankVersionRepository.existsByYearAndSemesterAndClassifiedCourseIsTrue(year, semester))
             throw new ClassifyAlreadyException();
 
-        /*
-            To do :
-            입력으로 받은 학년, 학기 이래의 강의 평가 데이터를 기준으로 교수와 강의 데이터에
-            티어 부여하기
-         */
         List<CourseDto> courses = courseRepository.findAllPreviousOrSameVersions(year, semester)
                 .stream()
                 .map(course ->
@@ -193,6 +188,44 @@ public class SimpleInjectService{
 
         if(rankVersionRepository.existsByYearAndSemesterAndClassifiedProfessorIsTrue(year, semester))
             throw new ClassifyAlreadyException();
+
+        List<ProfessorDto> professors = professorRepository.findAll()
+                .stream()
+                .map(professor -> {
+                    List<CourseProfessor> courseProfessors = courseProfessorRepository.findAllByProfessor_Id(professor.getId());
+
+                    ProfessorDto p = new ProfessorDto(
+                            professor.getName(),
+                            professor.getCollege(),
+                            professor.getDepartment().getOriginalName(),
+                            professor.getPosition());
+
+                    courseProfessors.forEach(cp -> {
+                        int courseCount = cp.getCourse().getCount();
+                        float courseRating = cp.getCourse().getRating();
+                        p.setCount(p.getCount() + courseCount);
+                        p.setRating(p.getRating() + courseRating);
+                    });
+
+                    return p;
+                }).collect(Collectors.toList());
+
+        classification.classifyProfessor(professors);
+
+        professors = classification.getUniqueProfessors();
+
+        professors.forEach(professor -> {
+            Professor updateProfessor = professorRepository.findByNameAndDepartment_OriginalName(
+                    professor.getName(),
+                    professor.getDepartment());
+
+            updateProfessor.setCount(professor.getCount());
+            updateProfessor.setRating(professor.getRating());
+            updateProfessor.setAverage(professor.getAverage());
+            updateProfessor.setTier(professor.getTier());
+
+            professorRepository.save(updateProfessor);
+        });
 
         List<RankVersion> rankVersions = rankVersionRepository.findPreviousOrSameVersions(year, semester);
         rankVersions.forEach(rankVersion -> rankVersion.setClassifiedProfessor(true));

@@ -2,10 +2,10 @@ package NotableDeveloper.rank.test.service.SimpleInjectService;
 
 import NotableDeveloper.rank.domain.dto.CourseDto;
 import NotableDeveloper.rank.domain.dto.EvaluationDto;
-import NotableDeveloper.rank.domain.entity.Course;
+import NotableDeveloper.rank.domain.dto.ProfessorDto;
+import NotableDeveloper.rank.domain.entity.*;
 import NotableDeveloper.rank.domain.enums.Tier;
 import NotableDeveloper.rank.domain.exceptiion.ClassifyAlreadyException;
-import NotableDeveloper.rank.domain.entity.RankVersion;
 import NotableDeveloper.rank.domain.enums.Semester;
 import NotableDeveloper.rank.domain.exceptiion.EvaluationNotFoundException;
 import NotableDeveloper.rank.repository.*;
@@ -231,6 +231,94 @@ public class DataClassifyTest {
 
         Mockito.verify(courseRepository,
                 Mockito.times(expectedCourses.size()))
+                .save(Mockito.any());
+    }
+
+    @Test
+    @DisplayName("교수 데이터에 등급을 부여할 때, 백분율을 계산한다.")
+    void 교수_등급_정상부여_테스트(){
+        ArrayList<ProfessorDto> expectedProfessors = new ArrayList<>();
+        Map<List<Object>, ProfessorDto> keyMap = new HashMap<>();
+        List<ProfessorDto> professors = simpleInjectService.getExtractor().getProfessors();
+
+        professors.forEach(professor -> {
+            List<Object> key = Arrays.asList(
+                    professor.getName(),
+                    professor.getCollege(),
+                    professor.getDepartment(),
+                    professor.getPosition());
+
+            if(!keyMap.containsKey(key)){
+                keyMap.put(key, professor);
+                expectedProfessors.add(professor);
+            }
+        });
+
+        expectedProfessors.forEach(professor -> professor.setAverage(professor.getRating() / professor.getCount()));
+        Collections.sort(expectedProfessors);
+
+        int totalProfessors = expectedProfessors.size();
+
+        for(int i = 0; i < totalProfessors; i++){
+            float percentage = (float)(i + 1) / totalProfessors * 100;
+
+            if(0.0F < percentage && percentage < 10.00F)
+                expectedProfessors.get(i).setTier(Tier.A_PLUS);
+
+            else if(10.00F <= percentage && percentage < 20.00F)
+                expectedProfessors.get(i).setTier(Tier.A);
+
+            else if(20.00F <= percentage && percentage < 30.00F)
+                expectedProfessors.get(i).setTier(Tier.A_MINUS);
+
+            else if(30.0F <= percentage && percentage < 40.00F)
+                expectedProfessors.get(i).setTier(Tier.B_PLUS);
+
+            else if(40.00F <= percentage && percentage < 60.00F)
+                expectedProfessors.get(i).setTier(Tier.B);
+
+            else if(60.00F <= percentage && percentage < 70.00F)
+                expectedProfessors.get(i).setTier(Tier.B_MINUS);
+
+            else if(70.00F <= percentage && percentage < 75.00F)
+                expectedProfessors.get(i).setTier(Tier.C_PLUS);
+
+            else if(75.00F <= percentage && percentage < 80.00F)
+                expectedProfessors.get(i).setTier(Tier.C);
+
+            else if(80.00F <= percentage && percentage < 85.00F)
+                expectedProfessors.get(i).setTier(Tier.C_MINUS);
+
+            else if(85.00F <= percentage && percentage < 90.00F)
+                expectedProfessors.get(i).setTier(Tier.D_PLUS);
+
+            else if(90.00F <= percentage && percentage < 95.00F)
+                expectedProfessors.get(i).setTier(Tier.D);
+
+            else
+                expectedProfessors.get(i).setTier(Tier.D_MINUS);
+        }
+
+        for(ProfessorDto professor : expectedProfessors) {
+            Mockito.when(professorRepository.findByNameAndDepartment_OriginalName(
+                    professor.getName(), professor.getDepartment()))
+                    .thenReturn(new Professor(
+                            professor.getName(),
+                            professor.getCollege(),
+                            new Department(professor.getCollege(), professor.getDepartment()),
+                            professor.getPosition()
+                    ));
+        }
+
+        simpleInjectService.getClassification().setUniqueProfessors(expectedProfessors);
+        simpleInjectService.updateProfessors(year, semester);
+        List<ProfessorDto> savedProfessors = simpleInjectService.getClassification().getUniqueProfessors();
+
+        for(ProfessorDto expected : expectedProfessors)
+            Assertions.assertEquals(true, savedProfessors.contains(expected));
+
+        Mockito.verify(professorRepository,
+                Mockito.times(expectedProfessors.size()))
                 .save(Mockito.any());
     }
 }
