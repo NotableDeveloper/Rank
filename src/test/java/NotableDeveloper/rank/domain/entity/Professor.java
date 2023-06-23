@@ -31,7 +31,13 @@ public class Professor {
     private String position;
 
     @Column(nullable = false)
+    private int count;
+
+    @Column(nullable = false)
     private float rating;
+
+    @Column(nullable = false)
+    private float average;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)

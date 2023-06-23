@@ -4,6 +4,7 @@ import NotableDeveloper.rank.domain.enums.Semester;
 import lombok.Getter;
 import lombok.Setter;
 
+
 import javax.persistence.*;
 
 @Getter
@@ -21,8 +22,20 @@ public class RankVersion {
     @Enumerated(EnumType.STRING)
     Semester semester;
 
+    @Column(nullable = false)
+    boolean injected;
+
+    @Column(nullable = false)
+    boolean classifiedCourse;
+
+    @Column(nullable = false)
+    boolean classifiedProfessor;
+
     public RankVersion(int year, Semester semester) {
         this.year = year;
         this.semester = semester;
+        this.injected = false;
+        this.classifiedCourse = false;
+        this.classifiedProfessor = false;
     }
 }

@@ -1,4 +1,4 @@
-package NotableDeveloper.rank.service;
+package NotableDeveloper.rank.service.implement;
 
 import NotableDeveloper.rank.domain.dto.CourseDto;
 import NotableDeveloper.rank.domain.dto.DepartmentDto;

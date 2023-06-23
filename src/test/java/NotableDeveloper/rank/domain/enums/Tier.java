@@ -1,5 +1,9 @@
 package NotableDeveloper.rank.domain.enums;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
 public enum Tier {
     A_PLUS("A+"),
     A("A0"),
@@ -20,9 +24,5 @@ public enum Tier {
 
     Tier(String tier) {
         this.tier = tier;
-    }
-
-    public String getTier(){
-        return this.tier;
     }
 }

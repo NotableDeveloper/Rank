@@ -3,19 +3,24 @@ package NotableDeveloper.rank.service;
 import NotableDeveloper.rank.domain.dto.*;
 import NotableDeveloper.rank.domain.entity.*;
 import NotableDeveloper.rank.domain.enums.Semester;
+import NotableDeveloper.rank.domain.exceptiion.ClassifyAlreadyException;
 import NotableDeveloper.rank.domain.exceptiion.EvaluationAlreadyException;
+import NotableDeveloper.rank.domain.exceptiion.EvaluationNotFoundException;
 import NotableDeveloper.rank.repository.*;
 
-import lombok.AllArgsConstructor;
+import NotableDeveloper.rank.service.implement.SimpleEvaluationClassify;
+import NotableDeveloper.rank.service.implement.SimpleEvaluationExtract;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
 @Getter
 @Setter
-@AllArgsConstructor
 public class SimpleInjectService{
     CourseRepository courseRepository;
 
@@ -28,12 +33,13 @@ public class SimpleInjectService{
     RankVersionRepository rankVersionRepository;
 
     SimpleEvaluationExtract extractor;
+    SimpleEvaluationClassify classification;
 
-    public void updateEvaluates(int year, Semester semester) {
-        if(rankVersionRepository.existsByYearAndSemester(year, semester))
+    public void saveEvaluates(int year, Semester semester) {
+        if(rankVersionRepository.existsByYearAndSemesterAndInjectedIsTrue(year, semester))
             throw new EvaluationAlreadyException();
 
-        rankVersionRepository.save(new RankVersion(year, semester));
+        RankVersion rankVersion = rankVersionRepository.save(new RankVersion(year, semester));
 
         extractor.extractEvaluation();
 
@@ -41,6 +47,9 @@ public class SimpleInjectService{
         saveCourse();
         saveProfessor();
         saveCourseProfessor();
+
+        rankVersion.setInjected(true);
+        rankVersionRepository.save(rankVersion);
     }
 
     private void saveDepartment(){
@@ -131,5 +140,97 @@ public class SimpleInjectService{
                 courseProfessorRepository.save(new CourseProfessor(course, professor));
             }
         }
+    }
+
+    public void updateCourses(int year, Semester semester){
+        if(!rankVersionRepository.existsByYearAndSemesterAndInjectedIsTrue(year, semester))
+            throw new EvaluationNotFoundException();
+
+        if(rankVersionRepository.existsByYearAndSemesterAndClassifiedCourseIsTrue(year, semester))
+            throw new ClassifyAlreadyException();
+
+        List<CourseDto> courses = courseRepository.findAllPreviousOrSameVersions(year, semester)
+                .stream()
+                .map(course ->
+                    new CourseDto(
+                            course.getTitle(),
+                            course.getOfferedYear(),
+                            course.getSemester(),
+                            course.getCode(),
+                            course.getRating()
+                    )
+                ).collect(Collectors.toList());
+
+        classification.classifyCourse(courses);
+
+        courses = classification.getUniqueCourses();
+
+        courses.forEach(courseDto -> {
+            Course updateCourse = courseRepository.findByTitleAndOfferedYearAndSemesterAndCode(
+                    courseDto.getTitle(),
+                    courseDto.getYear(),
+                    courseDto.getSemester(),
+                    courseDto.getCode()
+            );
+
+            updateCourse.setRating(courseDto.getAverage());
+            updateCourse.setTier(courseDto.getTier());
+
+            courseRepository.save(updateCourse);
+        });
+
+        List<RankVersion> rankVersions = rankVersionRepository.findPreviousOrSameVersions(year, semester);
+        rankVersions.forEach(rankVersion -> rankVersion.setClassifiedCourse(true));
+        rankVersionRepository.saveAll(rankVersions);
+    }
+
+    public void updateProfessors(int year, Semester semester){
+        if(!rankVersionRepository.existsByYearAndSemesterAndInjectedIsTrue(year, semester))
+            throw new EvaluationNotFoundException();
+
+        if(rankVersionRepository.existsByYearAndSemesterAndClassifiedProfessorIsTrue(year, semester))
+            throw new ClassifyAlreadyException();
+
+        List<ProfessorDto> professors = professorRepository.findAll()
+                .stream()
+                .map(professor -> {
+                    List<CourseProfessor> courseProfessors = courseProfessorRepository.findAllByProfessor_Id(professor.getId());
+
+                    ProfessorDto p = new ProfessorDto(
+                            professor.getName(),
+                            professor.getCollege(),
+                            professor.getDepartment().getOriginalName(),
+                            professor.getPosition());
+
+                    courseProfessors.forEach(cp -> {
+                        int courseCount = cp.getCourse().getCount();
+                        float courseRating = cp.getCourse().getRating();
+                        p.setCount(p.getCount() + courseCount);
+                        p.setRating(p.getRating() + courseRating);
+                    });
+
+                    return p;
+                }).collect(Collectors.toList());
+
+        classification.classifyProfessor(professors);
+
+        professors = classification.getUniqueProfessors();
+
+        professors.forEach(professor -> {
+            Professor updateProfessor = professorRepository.findByNameAndDepartment_OriginalName(
+                    professor.getName(),
+                    professor.getDepartment());
+
+            updateProfessor.setCount(professor.getCount());
+            updateProfessor.setRating(professor.getRating());
+            updateProfessor.setAverage(professor.getAverage());
+            updateProfessor.setTier(professor.getTier());
+
+            professorRepository.save(updateProfessor);
+        });
+
+        List<RankVersion> rankVersions = rankVersionRepository.findPreviousOrSameVersions(year, semester);
+        rankVersions.forEach(rankVersion -> rankVersion.setClassifiedProfessor(true));
+        rankVersionRepository.saveAll(rankVersions);
     }
 }
