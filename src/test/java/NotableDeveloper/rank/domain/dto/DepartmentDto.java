@@ -1,6 +1,7 @@
 package NotableDeveloper.rank.domain.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,12 +9,12 @@ import static java.util.Objects.hash;
 
 @Getter
 @Setter
-@AllArgsConstructor
 public class DepartmentDto {
     String college;
     String originalName;
     String shortenedName;
 
+    @Builder
     public DepartmentDto(String college, String originalName){
         this.college = college;
         this.originalName = originalName;

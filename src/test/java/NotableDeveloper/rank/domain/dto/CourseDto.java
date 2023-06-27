@@ -19,7 +19,7 @@ public class CourseDto implements Comparable<CourseDto> {
     int count;
     float average;
     Tier tier;
-
+    @Builder
     public CourseDto(String title, int year, Semester semester, String code, float rating){
         this.title = title;
         this.year = year;
