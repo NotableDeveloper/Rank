@@ -51,30 +51,27 @@ public class DataInjectTest {
         rankVersionRepository = Mockito.mock(RankVersionRepository.class);
 
         evaluations = new ArrayList<>();
+        String[] code = {"12345678", "87654321", "24681357", "13572468", "13572468", "13572468"};
+        String[] title = {"데이터베이스", "인공지능", "컴퓨터그래픽", "운영체제", "운영체제", "운영체제"};
+        String[] professor = {"홍길동", "김철수", "박철수", "홍길동", "홍길동", "홍길동"};
+        String[] department = {"컴퓨터학부", "소프트웨어학부", "글로벌미디어학부", "컴퓨터학부", "컴퓨터학부", "컴퓨터학부"};
+        float[] rating = {80.03F, 94.02F, 97.00F, 86.32F, 83.32F, 88.32F};
 
-        evaluations.add(
-                new EvaluationDto(2023, Semester.FIRST, "12345678", "데이터베이스", "김철수", "IT대학", "컴퓨터학부", "교수", 80.03F)
-        );
-
-        evaluations.add(
-                new EvaluationDto(2023, Semester.FIRST, "87654321", "인공지능", "김영희", "IT대학", "소프트웨어학부", "교수", 94.02F)
-        );
-
-        evaluations.add(
-                new EvaluationDto(2023, Semester.FIRST, "24681357", "컴퓨터그래픽", "홍길동", "IT대학", "글로벌미디어학부", "강사", 97.00F)
-        );
-
-        evaluations.add(
-                new EvaluationDto(2023, Semester.FIRST, "13572468", "운영체제", "김철수", "IT대학", "컴퓨터학부", "교수", 86.32F)
-        );
-
-        evaluations.add(
-                new EvaluationDto(2023, Semester.FIRST, "13572468", "운영체제", "김철수", "IT대학", "컴퓨터학부", "교수", 83.32F)
-        );
-
-        evaluations.add(
-                new EvaluationDto(2023, Semester.FIRST, "13572468", "운영체제", "김철수", "IT대학", "컴퓨터학부", "교수", 88.32F)
-        );
+        for(int i = 0; i < code.length; i++){
+            evaluations.add(
+                    EvaluationDto.builder()
+                            .year(2023)
+                            .semester(Semester.FIRST)
+                            .code(code[i])
+                            .title(title[i])
+                            .professorName(professor[i])
+                            .college("IT대학")
+                            .department(department[i])
+                            .position("교수")
+                            .rating(rating[i])
+                            .build()
+            );
+        }
 
         /*
             SimpleInjectService를 생성하고, Setter 주입으로 Mock 객체들을 넣어준다.
