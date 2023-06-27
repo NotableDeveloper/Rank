@@ -1,6 +1,7 @@
 package NotableDeveloper.rank.domain.entity;
 
 import NotableDeveloper.rank.domain.enums.Semester;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -31,6 +32,7 @@ public class RankVersion {
     @Column(nullable = false)
     boolean classifiedProfessor;
 
+    @Builder
     public RankVersion(int year, Semester semester) {
         this.year = year;
         this.semester = semester;

@@ -8,7 +8,6 @@ import lombok.Setter;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Setter
@@ -44,17 +43,17 @@ public class SampleCsvExtract {
                 String position = columns[targetColumns[5]];
                 float rating = Float.parseFloat(columns[targetColumns[6]]);
 
-                evaluations.add(new EvaluationDto(
-                    2023,
-                        Semester.FIRST,
-                        code,
-                        title,
-                        professorName,
-                        college,
-                        department,
-                        position,
-                        rating
-                ));
+                evaluations.add(EvaluationDto.builder()
+                        .year(2023)
+                        .semester(Semester.FIRST)
+                        .code(code)
+                        .title(title)
+                        .professorName(professorName)
+                        .college(college)
+                        .department(department)
+                        .position(position)
+                        .rating(rating)
+                        .build());
             }
 
         } catch (Exception e){

@@ -36,23 +36,25 @@ public class SimpleEvaluationExtract implements EvaluationExtract {
         professors = new ArrayList<>();
 
         for(EvaluationDto evaluationDto : evaluations){
-            departments.add(new DepartmentDto(
-                    evaluationDto.getCollege(),
-                    evaluationDto.getDepartment()));
+            departments.add(DepartmentDto.builder()
+                    .college(evaluationDto.getCollege())
+                    .originalName(evaluationDto.getDepartment())
+                    .build());
 
-            courses.add(new CourseDto(
-                    evaluationDto.getTitle(),
-                    evaluationDto.getYear(),
-                    evaluationDto.getSemester(),
-                    evaluationDto.getCode(),
-                    evaluationDto.getRating()));
+            courses.add(CourseDto.builder()
+                    .title(evaluationDto.getTitle())
+                    .year(evaluationDto.getYear())
+                    .semester(evaluationDto.getSemester())
+                    .code(evaluationDto.getCode())
+                    .rating(evaluationDto.getRating())
+                    .build());
 
-            professors.add(new ProfessorDto(
-                    evaluationDto.getProfessorName(),
-                    evaluationDto.getCollege(),
-                    evaluationDto.getDepartment(),
-                    evaluationDto.getPosition()
-            ));
+            professors.add(ProfessorDto.builder()
+                    .name(evaluationDto.getProfessorName())
+                    .college(evaluationDto.getCollege())
+                    .department(evaluationDto.getDepartment())
+                    .position(evaluationDto.getPosition())
+                    .build());
         }
     }
 }

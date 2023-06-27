@@ -2,6 +2,7 @@ package NotableDeveloper.rank.domain.dto;
 
 import NotableDeveloper.rank.domain.enums.Semester;
 import NotableDeveloper.rank.domain.enums.Tier;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,7 +19,7 @@ public class CourseDto implements Comparable<CourseDto> {
     int count;
     float average;
     Tier tier;
-
+    @Builder
     public CourseDto(String title, int year, Semester semester, String code, float rating){
         this.title = title;
         this.year = year;

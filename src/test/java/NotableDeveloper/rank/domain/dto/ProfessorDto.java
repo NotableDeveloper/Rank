@@ -2,6 +2,7 @@ package NotableDeveloper.rank.domain.dto;
 
 import NotableDeveloper.rank.domain.enums.Tier;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,7 +10,6 @@ import static java.util.Objects.hash;
 
 @Getter
 @Setter
-@AllArgsConstructor
 public class ProfessorDto implements Comparable<ProfessorDto> {
     String name;
     String college;
@@ -20,6 +20,7 @@ public class ProfessorDto implements Comparable<ProfessorDto> {
     float average;
     Tier tier;
 
+    @Builder
     public ProfessorDto(String name, String college, String department, String position){
         this.name = name;
         this.college = college;
