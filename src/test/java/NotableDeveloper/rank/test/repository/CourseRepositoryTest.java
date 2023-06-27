@@ -13,7 +13,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.ArrayList;
 
-
 @DataJpaTest
 public class CourseRepositoryTest {
     @Autowired
@@ -34,13 +33,7 @@ public class CourseRepositoryTest {
                 "12345678"
                 );
 
-        Assertions.assertEquals("객체지향 프로그래밍", findCourse.getTitle());
-        Assertions.assertEquals(2023, findCourse.getOfferedYear());
-        Assertions.assertEquals(Semester.FIRST, findCourse.getSemester());
-        Assertions.assertEquals("12345678", findCourse.getCode());
-        Assertions.assertEquals(79.0F, findCourse.getRating());
-        Assertions.assertEquals(Tier.F, findCourse.getTier());
-        Assertions.assertEquals(1, findCourse.getCount());
+        Assertions.assertEquals(course, findCourse);
     }
 
     @Test
@@ -101,12 +94,6 @@ public class CourseRepositoryTest {
         int count = (int) courseRepository.findAll().stream().filter(c -> c.getTitle().contains("객체지향 프로그래밍")).count();
         Assertions.assertEquals(1, count);
 
-        Assertions.assertEquals("객체지향 프로그래밍", findCourse.getTitle());
-        Assertions.assertEquals(2023, findCourse.getOfferedYear());
-        Assertions.assertEquals(Semester.FIRST, findCourse.getSemester());
-        Assertions.assertEquals("12345678", findCourse.getCode());
-        Assertions.assertEquals(237.0F, findCourse.getRating());
-        Assertions.assertEquals(Tier.F, findCourse.getTier());
-        Assertions.assertEquals(3, findCourse.getCount());
+        Assertions.assertEquals(course, findCourse);
     }
 }

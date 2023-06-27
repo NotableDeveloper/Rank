@@ -1,6 +1,7 @@
 package NotableDeveloper.rank.domain.entity;
 
 import NotableDeveloper.rank.domain.enums.Tier;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -43,6 +44,7 @@ public class Professor {
     @Enumerated(EnumType.STRING)
     private Tier tier;
 
+    @Builder
     public Professor(String name, String college, Department department, String position){
         this.name = name;
         this.college = college;

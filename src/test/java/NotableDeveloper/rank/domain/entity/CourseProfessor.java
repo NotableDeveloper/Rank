@@ -1,5 +1,6 @@
 package NotableDeveloper.rank.domain.entity;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -23,6 +24,7 @@ public class CourseProfessor {
     @JoinColumn(name = "professorId")
     Professor professor;
 
+    @Builder
     public CourseProfessor(Course course, Professor professor){
         this.course = course;
         this.professor = professor;

@@ -1,9 +1,6 @@
 package NotableDeveloper.rank.domain.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -32,6 +29,7 @@ public class Department {
         this.shortenedName = shortenedName;
     }
 
+    @Builder
     public Department(String college, String originalName){
         this.college = college;
         this.originalName = originalName;

@@ -40,6 +40,7 @@ public class Course {
     @Column(nullable = false)
     private int count;
 
+    @Builder
     public Course(String title, int year, Semester semester, String code, float rating){
         this.title = title;
         this.offeredYear = year;
