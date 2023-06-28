@@ -32,6 +32,9 @@ public class RankVersion {
     @Column(nullable = false)
     boolean classifiedProfessor;
 
+    @Column(nullable = false)
+    boolean shortenDepartments;
+
     @Builder
     public RankVersion(int year, Semester semester) {
         this.year = year;
@@ -39,5 +42,6 @@ public class RankVersion {
         this.injected = false;
         this.classifiedCourse = false;
         this.classifiedProfessor = false;
+        this.shortenDepartments = false;
     }
 }

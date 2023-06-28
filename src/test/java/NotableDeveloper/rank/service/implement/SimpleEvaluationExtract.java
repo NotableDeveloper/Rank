@@ -1,18 +1,12 @@
 package NotableDeveloper.rank.service.implement;
 
-import NotableDeveloper.rank.domain.dto.CourseDto;
-import NotableDeveloper.rank.domain.dto.DepartmentDto;
-import NotableDeveloper.rank.domain.dto.EvaluationDto;
-import NotableDeveloper.rank.domain.dto.ProfessorDto;
+import NotableDeveloper.rank.domain.dto.*;
 import NotableDeveloper.rank.service.function.EvaluationExtract;
 
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Getter
 @Setter
@@ -21,9 +15,11 @@ public class SimpleEvaluationExtract implements EvaluationExtract {
     private List<CourseDto> courses;
     private List<ProfessorDto> professors;
     private Set<DepartmentDto> departments;
+    private Map<String, String> shortenDepartments;
 
     public SimpleEvaluationExtract(){
         departments = new HashSet<>();
+        shortenDepartments = new HashMap();
     }
 
     public Set<DepartmentDto> getDepartments() {
@@ -56,5 +52,12 @@ public class SimpleEvaluationExtract implements EvaluationExtract {
                     .position(evaluationDto.getPosition())
                     .build());
         }
+    }
+
+    @Override
+    public void extractShortDepartments() {
+        /*
+        To do : extract to file or JSON
+         */
     }
 }

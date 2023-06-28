@@ -14,7 +14,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -235,5 +237,23 @@ public class SimpleInjectService{
         List<RankVersion> rankVersions = rankVersionRepository.findPreviousOrSameVersions(year, semester);
         rankVersions.forEach(rankVersion -> rankVersion.setClassifiedProfessor(true));
         rankVersionRepository.saveAll(rankVersions);
+    }
+
+    public void updateDepartments(int year, Semester semester){
+        if(rankVersionRepository.existsByYearAndSemesterAndInjectedIsTrue(year, semester))
+            throw new EvaluationNotFoundException();
+
+        List<Department> departments = departmentRepository.findAll();
+        Map<String, String> departmentTable = extractor.getShortenDepartments();
+
+        departments.forEach(department -> {
+            String shortDepartment = departmentTable.get(department.getOriginalName());
+            department.setShortenedName(shortDepartment);
+            departmentRepository.save(department);
+        });
+
+        RankVersion rankVersion = rankVersionRepository.findByYearAndSemester(year, semester);
+        rankVersion.setShortenDepartments(true);
+        rankVersionRepository.save(rankVersion);
     }
 }

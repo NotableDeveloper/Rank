@@ -38,6 +38,7 @@ public class DataInjectTest {
     RankVersionRepository rankVersionRepository;
     ArrayList<EvaluationDto> evaluations;
 
+    HashMap<String, String> shortDepartments;
     final int year = 2023;
     final Semester semester = Semester.FIRST;
 
@@ -73,11 +74,17 @@ public class DataInjectTest {
             );
         }
 
+        shortDepartments = new HashMap<>();
+        shortDepartments.put("컴퓨터학부", "컴퓨터");
+        shortDepartments.put("소프트웨어학부", "소프트");
+        shortDepartments.put("글로벌미디어학부", "글로벌미디어");
+
         /*
             SimpleInjectService를 생성하고, Setter 주입으로 Mock 객체들을 넣어준다.
          */
         SimpleEvaluationExtract extract = new SimpleEvaluationExtract();
         extract.setEvaluations(evaluations);
+        extract.setShortenDepartments(shortDepartments);
 
         simpleInjectService = new SimpleInjectService();
         simpleInjectService.setCourseRepository(courseRepository);
@@ -368,5 +375,39 @@ public class DataInjectTest {
                             evaluation.getDepartment()
                     );
         }
+    }
+
+    @Test
+    @DisplayName("여러 학과에 대한 줄임말 주입을 테스트한다.")
+    void 학과_줄임말_주입_테스트(){
+        /*
+            Department 테이블에서 객체들을 가져오는 메서드를 실행할 때, 대신 setUp에서 미리 저장해둔
+            Department 정보를 토대로 객체를 만들어 반환하도록 한다.
+         */
+        List<Department> mockDepartments = simpleInjectService.getExtractor().getDepartments()
+                .stream().map(department-> Department.builder()
+                        .originalName(department.getOriginalName())
+                        .college(department.getCollege())
+                        .build())
+                .collect(Collectors.toList());
+
+        Mockito.when(departmentRepository.findAll()).thenReturn(mockDepartments);
+
+        Mockito.when(rankVersionRepository.findByYearAndSemester(year, semester))
+                        .thenReturn(RankVersion.builder()
+                                .year(year)
+                                .semester(semester)
+                                .build());
+
+        Assertions.assertDoesNotThrow(() ->
+                simpleInjectService.updateDepartments(year, semester));
+
+        Mockito.verify(departmentRepository,
+                Mockito.times(1))
+                .findAll();
+
+        Mockito.verify(departmentRepository,
+                Mockito.times(mockDepartments.size()))
+                .save(Mockito.any());
     }
 }
