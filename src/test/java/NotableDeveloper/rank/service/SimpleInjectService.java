@@ -14,7 +14,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -39,7 +41,10 @@ public class SimpleInjectService{
         if(rankVersionRepository.existsByYearAndSemesterAndInjectedIsTrue(year, semester))
             throw new EvaluationAlreadyException();
 
-        RankVersion rankVersion = rankVersionRepository.save(new RankVersion(year, semester));
+        RankVersion rankVersion = rankVersionRepository.save(RankVersion.builder()
+                .year(year)
+                .semester(semester)
+                .build());
 
         extractor.extractEvaluation();
 
@@ -65,21 +70,19 @@ public class SimpleInjectService{
 
     private void saveCourse(){
         for(CourseDto courseDto : extractor.getCourses()){
-            String slicedCode = courseDto.getCode().substring(0, 8);
-
             if(!courseRepository.existsByTitleAndOfferedYearAndSemesterAndCode(
                     courseDto.getTitle(),
                     courseDto.getYear(),
                     courseDto.getSemester(),
-                    slicedCode)){
+                    courseDto.getCode())){
 
-                courseRepository.save(new Course(
-                        courseDto.getTitle(),
-                        courseDto.getYear(),
-                        courseDto.getSemester(),
-                        slicedCode,
-                        courseDto.getRating()
-                ));
+                courseRepository.save(Course.builder()
+                        .code(courseDto.getCode())
+                        .title(courseDto.getTitle())
+                        .semester(courseDto.getSemester())
+                        .year(courseDto.getYear())
+                        .rating(courseDto.getRating())
+                        .build());
             }
 
             else{
@@ -87,7 +90,7 @@ public class SimpleInjectService{
                         courseDto.getTitle(),
                         courseDto.getYear(),
                         courseDto.getSemester(),
-                        slicedCode);
+                        courseDto.getCode());
 
                 int updateCount = updateCourse.getCount() + 1;
                 float updateRating = updateCourse.getRating() + courseDto.getRating();
@@ -129,15 +132,17 @@ public class SimpleInjectService{
                         evaluationDto.getTitle(),
                         evaluationDto.getYear(),
                         evaluationDto.getSemester(),
-                        evaluationDto.getCode().substring(0, 8)
-                );
+                        evaluationDto.getCode());
 
                 Professor professor = professorRepository.findByNameAndDepartment_OriginalName(
                         evaluationDto.getProfessorName(),
                         evaluationDto.getDepartment()
                 );
 
-                courseProfessorRepository.save(new CourseProfessor(course, professor));
+                courseProfessorRepository.save(CourseProfessor.builder()
+                        .course(course)
+                        .professor(professor)
+                        .build());
             }
         }
     }
@@ -152,13 +157,12 @@ public class SimpleInjectService{
         List<CourseDto> courses = courseRepository.findAllPreviousOrSameVersions(year, semester)
                 .stream()
                 .map(course ->
-                    new CourseDto(
-                            course.getTitle(),
-                            course.getOfferedYear(),
-                            course.getSemester(),
-                            course.getCode(),
-                            course.getRating()
-                    )
+                        CourseDto.builder().year(course.getOfferedYear())
+                                .semester(course.getSemester())
+                                .code(course.getCode())
+                                .title(course.getTitle())
+                                .rating(course.getRating())
+                                .build()
                 ).collect(Collectors.toList());
 
         classification.classifyCourse(courses);
@@ -196,11 +200,12 @@ public class SimpleInjectService{
                 .map(professor -> {
                     List<CourseProfessor> courseProfessors = courseProfessorRepository.findAllByProfessor_Id(professor.getId());
 
-                    ProfessorDto p = new ProfessorDto(
-                            professor.getName(),
-                            professor.getCollege(),
-                            professor.getDepartment().getOriginalName(),
-                            professor.getPosition());
+                    ProfessorDto p = ProfessorDto.builder()
+                                    .name(professor.getName())
+                                    .college(professor.getCollege())
+                                    .position(professor.getPosition())
+                                    .department(professor.getDepartment().getOriginalName())
+                                    .build();
 
                     courseProfessors.forEach(cp -> {
                         int courseCount = cp.getCourse().getCount();
@@ -232,5 +237,23 @@ public class SimpleInjectService{
         List<RankVersion> rankVersions = rankVersionRepository.findPreviousOrSameVersions(year, semester);
         rankVersions.forEach(rankVersion -> rankVersion.setClassifiedProfessor(true));
         rankVersionRepository.saveAll(rankVersions);
+    }
+
+    public void updateDepartments(int year, Semester semester){
+        if(rankVersionRepository.existsByYearAndSemesterAndInjectedIsTrue(year, semester))
+            throw new EvaluationNotFoundException();
+
+        List<Department> departments = departmentRepository.findAll();
+        Map<String, String> departmentTable = extractor.getShortenDepartments();
+
+        departments.forEach(department -> {
+            String shortDepartment = departmentTable.get(department.getOriginalName());
+            department.setShortenedName(shortDepartment);
+            departmentRepository.save(department);
+        });
+
+        RankVersion rankVersion = rankVersionRepository.findByYearAndSemester(year, semester);
+        rankVersion.setShortenDepartments(true);
+        rankVersionRepository.save(rankVersion);
     }
 }
