@@ -77,10 +77,16 @@ public class DataClassifyTest {
                 .thenReturn(true);
 
         Mockito.when(rankVersionRepository.findByYearAndSemester(year, semester))
-                .thenReturn(new RankVersion(year, semester));
+                .thenReturn(RankVersion.builder()
+                        .year(year)
+                        .semester(semester)
+                        .build());
 
         Mockito.when(rankVersionRepository.save(Mockito.any()))
-                .thenReturn(new RankVersion(year, semester));
+                .thenReturn(RankVersion.builder()
+                        .year(year)
+                        .semester(semester)
+                        .build());
     }
     @Test
     @DisplayName("등급을 부여하기 이전에 강의 정보가 주입되어 있지 않으면 예외가 발생한다.")
@@ -302,12 +308,15 @@ public class DataClassifyTest {
         for(ProfessorDto professor : expectedProfessors) {
             Mockito.when(professorRepository.findByNameAndDepartment_OriginalName(
                     professor.getName(), professor.getDepartment()))
-                    .thenReturn(new Professor(
-                            professor.getName(),
-                            professor.getCollege(),
-                            new Department(professor.getCollege(), professor.getDepartment()),
-                            professor.getPosition()
-                    ));
+                    .thenReturn(Professor.builder()
+                            .name(professor.getName())
+                            .college(professor.getCollege())
+                            .position(professor.getPosition())
+                            .department(Department.builder()
+                                    .college(professor.getCollege())
+                                    .originalName(professor.getDepartment())
+                                    .build())
+                            .build());
         }
 
         simpleInjectService.getClassification().setUniqueProfessors(expectedProfessors);

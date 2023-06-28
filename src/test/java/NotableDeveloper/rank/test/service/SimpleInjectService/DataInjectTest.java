@@ -124,7 +124,10 @@ public class DataInjectTest {
         HashSet<DepartmentDto> savedDepartments;
 
         savedDepartments = evaluations.stream().map(evaluations ->
-                        new DepartmentDto(evaluations.getCollege(), evaluations.getDepartment()))
+                DepartmentDto.builder()
+                        .college(evaluations.getCollege())
+                        .originalName(evaluations.getDepartment())
+                        .build())
                 .collect(Collectors.toCollection(HashSet::new));
 
         simpleInjectService.saveEvaluates(2023, Semester.FIRST);
@@ -153,13 +156,15 @@ public class DataInjectTest {
 
         // evaluationCourses : 중복이 포함된(= 여러 분반이 포함딘) 강의 정보 List이다.
         ArrayList<CourseDto> evaluationCourses =
-                (ArrayList<CourseDto>) evaluations.stream().map(evaluations ->
-                        new CourseDto(evaluations.getTitle(),
-                                evaluations.getYear(),
-                                evaluations.getSemester(),
-                                evaluations.getCode(),
-                                evaluations.getRating()
-                        )).collect(Collectors.toList());
+                (ArrayList<CourseDto>) evaluations.stream().map(evaluation ->
+                        CourseDto.builder()
+                                .title(evaluation.getTitle())
+                                .year(evaluation.getYear())
+                                .semester(evaluation.getSemester())
+                                .code(evaluation.getCode())
+                                .rating(evaluation.getRating())
+                                .build())
+                        .collect(Collectors.toList());
 
         // uniqueCourses : 중복을 포함하지 않는(= 여러 분반을 하나로 합친) 강의 정보이며, 실제 DB에 등록되는 형태의 Map이다.
         Map<String, CourseDto> uniqueCourses = new HashMap<>();
@@ -190,12 +195,13 @@ public class DataInjectTest {
                     .thenReturn(false)
                     .thenReturn(true);
 
-            Course findCourse = new Course(
-                    courseDto.getTitle(),
-                    courseDto.getYear(),
-                    courseDto.getSemester(),
-                    courseDto.getCode(),
-                    courseDto.getRating());
+            Course findCourse = Course.builder()
+                    .year(courseDto.getYear())
+                    .semester(courseDto.getSemester())
+                    .title(courseDto.getTitle())
+                    .code(courseDto.getCode())
+                    .rating(courseDto.getRating())
+                    .build();
 
             findCourse.setCount(courseDto.getCount());
 
@@ -250,12 +256,14 @@ public class DataInjectTest {
             또, 사전에 학과 정보가 먼저 저장되어 있어야 한다.
          */
         ArrayList<ProfessorDto> evaluationProfessors =
-                (ArrayList<ProfessorDto>) evaluations.stream().map(evaluations ->
-                        new ProfessorDto(evaluations.getProfessorName(),
-                                evaluations.getCollege(),
-                                evaluations.getDepartment(),
-                                evaluations.getPosition()
-                        )).collect(Collectors.toList());
+                (ArrayList<ProfessorDto>) evaluations.stream().map(evaluation ->
+                        ProfessorDto.builder()
+                                .college(evaluation.getCollege())
+                                .department(evaluation.getDepartment())
+                                .name(evaluation.getProfessorName())
+                                .position(evaluation.getPosition())
+                                .build()
+                        ).collect(Collectors.toList());
 
         long mockId = 1;
         /*
