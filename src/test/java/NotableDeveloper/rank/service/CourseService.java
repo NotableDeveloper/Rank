@@ -51,4 +51,31 @@ public class CourseService {
 
         return courses;
     }
+
+    public CourseDetailDto getCourseById(Long courseId){
+        CourseProfessor cpByCourseId = courseProfessorRepository.findByCourse_Id(courseId);
+
+        if(cpByCourseId == null) throw new CourseNotFoundException();
+
+        Course c = cpByCourseId.getCourse();
+        Professor p = cpByCourseId.getProfessor();
+
+        ProfessorDetailDto professorDetailDto = ProfessorDetailDto.builder()
+                .name(p.getName())
+                .professorId(p.getId())
+                .department(p.getDepartment().getOriginalName())
+                .college(p.getCollege())
+                .position(p.getPosition())
+                .tier(p.getTier())
+                .build();
+
+        return CourseDetailDto.builder()
+                .title(c.getTitle())
+                .year(c.getOfferedYear())
+                .semester(c.getSemester())
+                .courseId(c.getId())
+                .tier(c.getTier())
+                .professor(professorDetailDto)
+                .build();
+    }
 }
