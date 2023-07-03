@@ -12,18 +12,17 @@ import static java.util.Objects.hash;
 @Setter
 @Builder
 public class CourseDetailDto {
+    Long courseId;
+    String code;
     String title;
     int year;
     Semester semester;
-    String code;
-    String college;
-    String department;
-    String professor;
     Tier tier;
+    ProfessorDetailDto professor;
 
     @Override
     public boolean equals(Object object){
-        CourseDto course = (CourseDto) object;
+        CourseDetailDto course = (CourseDetailDto) object;
 
         return this.getTitle() == course.getTitle() &&
                 this.getCode() == course.getCode() &&
