@@ -20,7 +20,7 @@ public class CourseService {
 
     public List<CourseDetailDto> getCourseByTitle(String title){
         List<CourseDetailDto> courses = new ArrayList<>();
-        ArrayList<CourseProfessor> courseProfessors = courseProfessorRepository.findAllByCourse_Title(title);
+        ArrayList<CourseProfessor> courseProfessors = courseProfessorRepository.findAllByCourse_TitleContains(title);
 
         if(courseProfessors.size() <= 0)
             throw new CourseNotFoundException();
