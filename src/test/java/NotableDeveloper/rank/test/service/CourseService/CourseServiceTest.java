@@ -101,15 +101,15 @@ public class CourseServiceTest {
                 .professor(professorKim)
                 .build());
 
-        courseProfessors.add(CourseProfessor
-                .builder()
+        courseProfessors.add(CourseProfessor.builder()
                 .course(sysp)
-                .professor(professorKim).build());
+                .professor(professorKim)
+                .build());
 
-        courseProfessors.add(CourseProfessor
-                .builder()
+        courseProfessors.add(CourseProfessor.builder()
                 .course(os)
-                .professor(professorPark).build());
+                .professor(professorPark)
+                .build());
     }
 
     @Test
@@ -131,20 +131,20 @@ public class CourseServiceTest {
             사전에 준비해둔 강의-교수 정보에서 강의명이 "프로그래밍"인 것만 추출하고,
             "프로그래밍"을 검색하는 경우에 추출한 강의-교수 정보를 반환하도록 한다.
          */
-        ArrayList<CourseProfessor> findByProgramming = (ArrayList<CourseProfessor>)
+        ArrayList<CourseProfessor> findAllByProgramming = (ArrayList<CourseProfessor>)
                 courseProfessors.stream().filter(cp ->
                         cp.getCourse().getTitle().contains(title))
                         .collect(Collectors.toList());
 
         Mockito.when(courseProfessorRepository.findAllByCourse_TitleContains(title))
-                .thenReturn(findByProgramming);
+                .thenReturn(findAllByProgramming);
 
         /*
              CouserService에서 "프로그래밍"으로 강의를 검색한 경우에
              나올 것으로 예상되는 DTO List를 생성한다.
          */
         ArrayList<CourseDetailDto> exceptedCourses =
-                (ArrayList<CourseDetailDto>) findByProgramming.stream()
+                (ArrayList<CourseDetailDto>) findAllByProgramming.stream()
                         .map(cp -> CourseDetailDto.builder()
                                 .courseId(cp.getCourse().getId())
                                 .code(cp.getCourse().getCode())
@@ -170,5 +170,54 @@ public class CourseServiceTest {
 
             Assertions.assertEquals(expectedCourse, findCourse);
         }
+    }
+
+    @Test
+    @DisplayName("강의 ID로 검색할 때, 해당하는 강의가 없으면 예외를 반환한다.")
+    void 강의ID_검색_실패_테스트(){
+        Mockito.when(courseProfessorRepository.findByCourse_Id(Mockito.any()))
+                .thenReturn(null);
+
+        Assertions.assertThrows(CourseNotFoundException.class,
+                () -> courseService.getCourseById(1L));
+    }
+
+    @Test
+    @DisplayName("강의 ID로 검색할 때, 해당하는 강의가 있는 지를 검증한다.")
+    void 강의ID_검색_성공_테스트(){
+        Long courseId = 3L;
+
+        CourseProfessor findByCourseId = courseProfessors.stream()
+                .filter(cp -> cp.getCourse().getId().equals(courseId))
+                .findFirst()
+                .orElse(null);
+
+        Course c = findByCourseId.getCourse();
+        Professor p = findByCourseId.getProfessor();
+
+        ProfessorDetailDto professorDetailDto = ProfessorDetailDto.builder()
+                .professorId(p.getId())
+                .name(p.getName())
+                .college(p.getCollege())
+                .department(p.getDepartment().getOriginalName())
+                .position(p.getPosition())
+                .tier(p.getTier())
+                .build();
+
+        CourseDetailDto exceptedCourse = CourseDetailDto.builder()
+                .courseId(c.getId())
+                .code(c.getCode())
+                .semester(c.getSemester())
+                .year(c.getOfferedYear())
+                .tier(c.getTier())
+                .professor(professorDetailDto).
+                build();
+
+        Mockito.when(courseProfessorRepository.findByCourse_Id(courseId))
+                .thenReturn(findByCourseId);
+
+        CourseDetailDto findCourse = courseService.getCourseById(courseId);
+
+        Assertions.assertEquals(exceptedCourse.getCourseId(), findCourse.getCourseId());
     }
 }
