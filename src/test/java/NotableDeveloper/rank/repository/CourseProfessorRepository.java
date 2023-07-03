@@ -10,4 +10,5 @@ import java.util.ArrayList;
 public interface CourseProfessorRepository extends JpaRepository<CourseProfessor, Long> {
     ArrayList<CourseProfessor> findAllByProfessor_Id(Long professorId);
     boolean existsByCourse_TitleAndProfessor_Name(String title, String name);
+    ArrayList<CourseProfessor> findAllByCourse_Title(String title);
 }

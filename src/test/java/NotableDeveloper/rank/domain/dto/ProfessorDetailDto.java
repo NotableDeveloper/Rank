@@ -11,6 +11,7 @@ import static java.util.Objects.hash;
 @Setter
 @Builder
 public class ProfessorDetailDto {
+    Long professorId;
     String name;
     String college;
     String department;
