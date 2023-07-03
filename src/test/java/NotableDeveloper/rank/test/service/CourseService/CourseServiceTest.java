@@ -1,5 +1,10 @@
 package NotableDeveloper.rank.test.service.CourseService;
 
-public class CourseServiceTest {
+import org.junit.jupiter.api.Test;
 
+public class CourseServiceTest {
+    @Test
+    void 강의_조회_테스트(){
+
+    }
 }
