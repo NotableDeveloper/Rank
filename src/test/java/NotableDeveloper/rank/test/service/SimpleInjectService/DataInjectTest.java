@@ -1,6 +1,6 @@
 package NotableDeveloper.rank.test.service.SimpleInjectService;
 
-import NotableDeveloper.rank.domain.dto.CourseDto;
+import NotableDeveloper.rank.domain.dto.CourseDataDto;
 import NotableDeveloper.rank.domain.dto.DepartmentDto;
 import NotableDeveloper.rank.domain.dto.EvaluationDto;
 import NotableDeveloper.rank.domain.dto.ProfessorDto;
@@ -162,9 +162,9 @@ public class DataInjectTest {
          */
 
         // evaluationCourses : 중복이 포함된(= 여러 분반이 포함딘) 강의 정보 List이다.
-        ArrayList<CourseDto> evaluationCourses =
-                (ArrayList<CourseDto>) evaluations.stream().map(evaluation ->
-                        CourseDto.builder()
+        ArrayList<CourseDataDto> evaluationCourses =
+                (ArrayList<CourseDataDto>) evaluations.stream().map(evaluation ->
+                        CourseDataDto.builder()
                                 .title(evaluation.getTitle())
                                 .year(evaluation.getYear())
                                 .semester(evaluation.getSemester())
@@ -174,13 +174,13 @@ public class DataInjectTest {
                         .collect(Collectors.toList());
 
         // uniqueCourses : 중복을 포함하지 않는(= 여러 분반을 하나로 합친) 강의 정보이며, 실제 DB에 등록되는 형태의 Map이다.
-        Map<String, CourseDto> uniqueCourses = new HashMap<>();
+        Map<String, CourseDataDto> uniqueCourses = new HashMap<>();
 
-        for (CourseDto courseDto : evaluationCourses) {
+        for (CourseDataDto courseDto : evaluationCourses) {
             if (!uniqueCourses.containsKey(courseDto.getCode())) uniqueCourses.put(courseDto.getCode(), courseDto);
 
             else {
-                CourseDto existingDto = uniqueCourses.get(courseDto.getCode());
+                CourseDataDto existingDto = uniqueCourses.get(courseDto.getCode());
                 existingDto.setCount(existingDto.getCount() + 1);
                 existingDto.setRating(existingDto.getRating() + courseDto.getRating());
             }
@@ -192,7 +192,7 @@ public class DataInjectTest {
 
             이미 등록된 강의를 찾아 갱신하려 할 때, 임의의 Course 객체를 만들고 그 값을 등록 하도록 처리한다.
          */
-        for(CourseDto courseDto : uniqueCourses.values()) {
+        for(CourseDataDto courseDto : uniqueCourses.values()) {
             Mockito.when(courseRepository.existsByTitleAndOfferedYearAndSemesterAndCode(
                             courseDto.getTitle(),
                             courseDto.getYear(),
@@ -230,7 +230,7 @@ public class DataInjectTest {
                         Mockito.times(evaluationCourses.size()))
                 .save(Mockito.any(Course.class));
 
-        for(CourseDto courseDto : evaluationCourses) {
+        for(CourseDataDto courseDto : evaluationCourses) {
             int count = uniqueCourses.get(courseDto.getCode()).getCount();
 
             Mockito.verify(courseRepository,
@@ -242,7 +242,7 @@ public class DataInjectTest {
                             courseDto.getCode());
         }
 
-        for(CourseDto courseDto : uniqueCourses.values()){
+        for(CourseDataDto courseDto : uniqueCourses.values()){
             if(courseDto.getCount() > 1){
                 Mockito.verify(courseRepository,
                         Mockito.atLeast(courseDto.getCount()))

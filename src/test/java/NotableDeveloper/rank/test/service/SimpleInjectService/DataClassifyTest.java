@@ -1,6 +1,6 @@
 package NotableDeveloper.rank.test.service.SimpleInjectService;
 
-import NotableDeveloper.rank.domain.dto.CourseDto;
+import NotableDeveloper.rank.domain.dto.CourseDataDto;
 import NotableDeveloper.rank.domain.dto.EvaluationDto;
 import NotableDeveloper.rank.domain.dto.ProfessorDto;
 import NotableDeveloper.rank.domain.entity.*;
@@ -144,9 +144,9 @@ public class DataClassifyTest {
             expectedCourses는 중복되지 않는(= 분반을 고려한) 강의들을 저장한 List이고,
             courses는 중복을 포함하는(= 분반이 분반을 고려하지 않은) 강의들을 저장한 List이다.
          */
-        ArrayList<CourseDto> expectedCourses = new ArrayList<>();
-        Map<List<Object>, CourseDto> keyMap = new HashMap<>();
-        List<CourseDto> courses = simpleInjectService.getExtractor().getCourses();
+        ArrayList<CourseDataDto> expectedCourses = new ArrayList<>();
+        Map<List<Object>, CourseDataDto> keyMap = new HashMap<>();
+        List<CourseDataDto> courses = simpleInjectService.getExtractor().getCourses();
 
         courses.forEach(course -> {
             List<Object> key = Arrays.asList(course.getTitle(),
@@ -156,7 +156,7 @@ public class DataClassifyTest {
                     );
 
             if(keyMap.containsKey(key)){
-                CourseDto existingCourse = keyMap.get(key);
+                CourseDataDto existingCourse = keyMap.get(key);
                 existingCourse.setCount(existingCourse.getCount() + 1);
                 existingCourse.setRating(existingCourse.getRating() + course.getRating());
             }
@@ -206,7 +206,7 @@ public class DataClassifyTest {
         Mockito.when(courseRepository.findAllPreviousOrSameVersions(year, semester))
                         .thenReturn(findCourses);
 
-        for(CourseDto expectedCourse : expectedCourses){
+        for(CourseDataDto expectedCourse : expectedCourses){
             Course findCourse = new Course(
                     expectedCourse.getTitle(),
                     expectedCourse.getYear(),
@@ -229,9 +229,9 @@ public class DataClassifyTest {
             expectedCourses와 DB에 저장될 savedCourses를 비교하여 검증한다.
             또, DB 저장이 expectedCourses의 size만큼 호출되는 지를 검증한다.
          */
-        List<CourseDto> savedCourses = simpleInjectService.getClassification().getUniqueCourses();
+        List<CourseDataDto> savedCourses = simpleInjectService.getClassification().getUniqueCourses();
 
-        for(CourseDto expected : expectedCourses){
+        for(CourseDataDto expected : expectedCourses){
             Assertions.assertEquals(true, savedCourses.contains(expected));
         }
 

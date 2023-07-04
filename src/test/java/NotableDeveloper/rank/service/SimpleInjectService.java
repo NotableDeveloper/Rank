@@ -14,7 +14,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -69,7 +68,7 @@ public class SimpleInjectService{
     }
 
     private void saveCourse(){
-        for(CourseDto courseDto : extractor.getCourses()){
+        for(CourseDataDto courseDto : extractor.getCourses()){
             if(!courseRepository.existsByTitleAndOfferedYearAndSemesterAndCode(
                     courseDto.getTitle(),
                     courseDto.getYear(),
@@ -154,10 +153,10 @@ public class SimpleInjectService{
         if(rankVersionRepository.existsByYearAndSemesterAndClassifiedCourseIsTrue(year, semester))
             throw new ClassifyAlreadyException();
 
-        List<CourseDto> courses = courseRepository.findAllPreviousOrSameVersions(year, semester)
+        List<CourseDataDto> courses = courseRepository.findAllPreviousOrSameVersions(year, semester)
                 .stream()
                 .map(course ->
-                        CourseDto.builder().year(course.getOfferedYear())
+                        CourseDataDto.builder().year(course.getOfferedYear())
                                 .semester(course.getSemester())
                                 .code(course.getCode())
                                 .title(course.getTitle())

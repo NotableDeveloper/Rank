@@ -12,7 +12,7 @@ import java.util.*;
 @Setter
 public class SimpleEvaluationExtract implements EvaluationExtract {
     private List<EvaluationDto> evaluations;
-    private List<CourseDto> courses;
+    private List<CourseDataDto> courses;
     private List<ProfessorDto> professors;
     private Set<DepartmentDto> departments;
     private Map<String, String> shortenDepartments;
@@ -37,7 +37,7 @@ public class SimpleEvaluationExtract implements EvaluationExtract {
                     .originalName(evaluationDto.getDepartment())
                     .build());
 
-            courses.add(CourseDto.builder()
+            courses.add(CourseDataDto.builder()
                     .title(evaluationDto.getTitle())
                     .year(evaluationDto.getYear())
                     .semester(evaluationDto.getSemester())

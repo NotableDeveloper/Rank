@@ -78,4 +78,9 @@ public class CourseService {
                 .professor(professorDetailDto)
                 .build();
     }
+
+    private List<CourseDetailDto> getPreviousCourseHistory(){
+        ArrayList<CourseDetailDto> history = new ArrayList<>();
+        return history;
+    }
 }

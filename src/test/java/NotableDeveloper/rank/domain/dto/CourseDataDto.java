@@ -10,7 +10,7 @@ import static java.util.Objects.hash;
 
 @Getter
 @Setter
-public class CourseDto implements Comparable<CourseDto> {
+public class CourseDataDto implements Comparable<CourseDataDto> {
     String title;
     int year;
     Semester semester;
@@ -20,7 +20,7 @@ public class CourseDto implements Comparable<CourseDto> {
     float average;
     Tier tier;
     @Builder
-    public CourseDto(String title, int year, Semester semester, String code, float rating){
+    public CourseDataDto(String title, int year, Semester semester, String code, float rating){
         this.title = title;
         this.year = year;
         this.semester = semester;
@@ -33,7 +33,7 @@ public class CourseDto implements Comparable<CourseDto> {
 
     @Override
     public boolean equals(Object object){
-        CourseDto course = (CourseDto) object;
+        CourseDataDto course = (CourseDataDto) object;
 
         return this.getTitle() == course.getTitle() &&
                 this.getCode() == course.getCode() &&
@@ -55,7 +55,7 @@ public class CourseDto implements Comparable<CourseDto> {
         average 값이 같다면 count 값을 기준으로 정렬을 수행.
      */
     @Override
-    public int compareTo(CourseDto other) {
+    public int compareTo(CourseDataDto other) {
         int averageComparison = Float.compare(other.getAverage(), this.getAverage());
 
         if (averageComparison != 0) {
