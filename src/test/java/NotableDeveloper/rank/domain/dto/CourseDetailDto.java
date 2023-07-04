@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import static java.util.Objects.hash;
+import java.util.List;
 
 @Getter
 @Setter
@@ -17,24 +17,7 @@ public class CourseDetailDto {
     String title;
     int year;
     Semester semester;
-    Tier tier;
+    Tier courseTier;
     ProfessorDetailDto professor;
-
-    @Override
-    public boolean equals(Object object){
-        CourseDetailDto course = (CourseDetailDto) object;
-
-        return this.getTitle() == course.getTitle() &&
-                this.getCode() == course.getCode() &&
-                this.getYear() == course.getYear() &&
-                this.getSemester() == course.getSemester();
-    }
-
-    @Override
-    public int hashCode(){
-        return hash(this.getTitle(),
-                this.getCode(),
-                this.getYear(),
-                this.getSemester());
-    }
+    List<CourseHistoryDto> history;
 }

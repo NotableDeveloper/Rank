@@ -12,9 +12,9 @@ import java.util.*;
 @Setter
 public class SimpleEvaluationExtract implements EvaluationExtract {
     private List<EvaluationDto> evaluations;
-    private List<CourseDto> courses;
-    private List<ProfessorDto> professors;
-    private Set<DepartmentDto> departments;
+    private List<CourseDataDto> courses;
+    private List<ProfessorDataDto> professors;
+    private Set<DepartmentDataDto> departments;
     private Map<String, String> shortenDepartments;
 
     public SimpleEvaluationExtract(){
@@ -22,7 +22,7 @@ public class SimpleEvaluationExtract implements EvaluationExtract {
         shortenDepartments = new HashMap();
     }
 
-    public Set<DepartmentDto> getDepartments() {
+    public Set<DepartmentDataDto> getDepartments() {
         return this.departments;
     }
 
@@ -32,12 +32,12 @@ public class SimpleEvaluationExtract implements EvaluationExtract {
         professors = new ArrayList<>();
 
         for(EvaluationDto evaluationDto : evaluations){
-            departments.add(DepartmentDto.builder()
+            departments.add(DepartmentDataDto.builder()
                     .college(evaluationDto.getCollege())
                     .originalName(evaluationDto.getDepartment())
                     .build());
 
-            courses.add(CourseDto.builder()
+            courses.add(CourseDataDto.builder()
                     .title(evaluationDto.getTitle())
                     .year(evaluationDto.getYear())
                     .semester(evaluationDto.getSemester())
@@ -45,7 +45,7 @@ public class SimpleEvaluationExtract implements EvaluationExtract {
                     .rating(evaluationDto.getRating())
                     .build());
 
-            professors.add(ProfessorDto.builder()
+            professors.add(ProfessorDataDto.builder()
                     .name(evaluationDto.getProfessorName())
                     .college(evaluationDto.getCollege())
                     .department(evaluationDto.getDepartment())

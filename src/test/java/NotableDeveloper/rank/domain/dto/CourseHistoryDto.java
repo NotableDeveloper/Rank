@@ -9,12 +9,9 @@ import lombok.Setter;
 @Builder
 @Getter
 @Setter
-public class CourseDto {
+public class CourseHistoryDto {
     Long courseId;
-    String title;
     int year;
     Semester semester;
     Tier tier;
-    String professor;
-    String department;
 }

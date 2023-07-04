@@ -1,9 +1,9 @@
 package NotableDeveloper.rank.test.service.SimpleInjectService;
 
-import NotableDeveloper.rank.domain.dto.CourseDto;
-import NotableDeveloper.rank.domain.dto.DepartmentDto;
+import NotableDeveloper.rank.domain.dto.CourseDataDto;
+import NotableDeveloper.rank.domain.dto.DepartmentDataDto;
 import NotableDeveloper.rank.domain.dto.EvaluationDto;
-import NotableDeveloper.rank.domain.dto.ProfessorDto;
+import NotableDeveloper.rank.domain.dto.ProfessorDataDto;
 import NotableDeveloper.rank.domain.entity.Course;
 import NotableDeveloper.rank.domain.entity.Department;
 import NotableDeveloper.rank.domain.entity.Professor;
@@ -128,10 +128,10 @@ public class DataInjectTest {
             강의 평가 데이터가 주입되는 과정에서 학과 정보는 중복 되지 않고 한 번씩만
             DB에 등록 되어야 한다.
          */
-        HashSet<DepartmentDto> savedDepartments;
+        HashSet<DepartmentDataDto> savedDepartments;
 
         savedDepartments = evaluations.stream().map(evaluations ->
-                DepartmentDto.builder()
+                DepartmentDataDto.builder()
                         .college(evaluations.getCollege())
                         .originalName(evaluations.getDepartment())
                         .build())
@@ -139,7 +139,7 @@ public class DataInjectTest {
 
         simpleInjectService.saveEvaluates(2023, Semester.FIRST);
 
-        for(DepartmentDto savedDepartment : savedDepartments) {
+        for(DepartmentDataDto savedDepartment : savedDepartments) {
             String college = savedDepartment.getCollege();
             String originalName = savedDepartment.getOriginalName();
 
@@ -162,9 +162,9 @@ public class DataInjectTest {
          */
 
         // evaluationCourses : 중복이 포함된(= 여러 분반이 포함딘) 강의 정보 List이다.
-        ArrayList<CourseDto> evaluationCourses =
-                (ArrayList<CourseDto>) evaluations.stream().map(evaluation ->
-                        CourseDto.builder()
+        ArrayList<CourseDataDto> evaluationCourses =
+                (ArrayList<CourseDataDto>) evaluations.stream().map(evaluation ->
+                        CourseDataDto.builder()
                                 .title(evaluation.getTitle())
                                 .year(evaluation.getYear())
                                 .semester(evaluation.getSemester())
@@ -174,13 +174,13 @@ public class DataInjectTest {
                         .collect(Collectors.toList());
 
         // uniqueCourses : 중복을 포함하지 않는(= 여러 분반을 하나로 합친) 강의 정보이며, 실제 DB에 등록되는 형태의 Map이다.
-        Map<String, CourseDto> uniqueCourses = new HashMap<>();
+        Map<String, CourseDataDto> uniqueCourses = new HashMap<>();
 
-        for (CourseDto courseDto : evaluationCourses) {
+        for (CourseDataDto courseDto : evaluationCourses) {
             if (!uniqueCourses.containsKey(courseDto.getCode())) uniqueCourses.put(courseDto.getCode(), courseDto);
 
             else {
-                CourseDto existingDto = uniqueCourses.get(courseDto.getCode());
+                CourseDataDto existingDto = uniqueCourses.get(courseDto.getCode());
                 existingDto.setCount(existingDto.getCount() + 1);
                 existingDto.setRating(existingDto.getRating() + courseDto.getRating());
             }
@@ -192,7 +192,7 @@ public class DataInjectTest {
 
             이미 등록된 강의를 찾아 갱신하려 할 때, 임의의 Course 객체를 만들고 그 값을 등록 하도록 처리한다.
          */
-        for(CourseDto courseDto : uniqueCourses.values()) {
+        for(CourseDataDto courseDto : uniqueCourses.values()) {
             Mockito.when(courseRepository.existsByTitleAndOfferedYearAndSemesterAndCode(
                             courseDto.getTitle(),
                             courseDto.getYear(),
@@ -230,7 +230,7 @@ public class DataInjectTest {
                         Mockito.times(evaluationCourses.size()))
                 .save(Mockito.any(Course.class));
 
-        for(CourseDto courseDto : evaluationCourses) {
+        for(CourseDataDto courseDto : evaluationCourses) {
             int count = uniqueCourses.get(courseDto.getCode()).getCount();
 
             Mockito.verify(courseRepository,
@@ -242,7 +242,7 @@ public class DataInjectTest {
                             courseDto.getCode());
         }
 
-        for(CourseDto courseDto : uniqueCourses.values()){
+        for(CourseDataDto courseDto : uniqueCourses.values()){
             if(courseDto.getCount() > 1){
                 Mockito.verify(courseRepository,
                         Mockito.atLeast(courseDto.getCount()))
@@ -262,9 +262,9 @@ public class DataInjectTest {
             강의 평가 데이터가 주입되는 과정에서 교수 정보는 중복되지 않고 저장되어야 한다.
             또, 사전에 학과 정보가 먼저 저장되어 있어야 한다.
          */
-        ArrayList<ProfessorDto> evaluationProfessors =
-                (ArrayList<ProfessorDto>) evaluations.stream().map(evaluation ->
-                        ProfessorDto.builder()
+        ArrayList<ProfessorDataDto> evaluationProfessors =
+                (ArrayList<ProfessorDataDto>) evaluations.stream().map(evaluation ->
+                        ProfessorDataDto.builder()
                                 .college(evaluation.getCollege())
                                 .department(evaluation.getDepartment())
                                 .name(evaluation.getProfessorName())
@@ -277,7 +277,7 @@ public class DataInjectTest {
             학과 정보를 검색하는 메서드에 대해 처리한다.
             또, 이미 등록된 교수인 지를 확인하는 메서드에 대해서도 처리한다.
          */
-        for(ProfessorDto professorDto : evaluationProfessors){
+        for(ProfessorDataDto professorDto : evaluationProfessors){
             Department mockDepartment = new Department(
                     professorDto.getCollege(),
                     professorDto.getDepartment());
@@ -398,6 +398,12 @@ public class DataInjectTest {
                                 .year(year)
                                 .semester(semester)
                                 .build());
+
+        /*
+            학과 줄임말이 주입되려면 사전에 강의평가 데이터 주입이 완료되어야 한다.
+         */
+        Mockito.when(rankVersionRepository.existsByYearAndSemesterAndInjectedIsTrue(year, semester))
+                .thenReturn(true);
 
         Assertions.assertDoesNotThrow(() ->
                 simpleInjectService.updateDepartments(year, semester));

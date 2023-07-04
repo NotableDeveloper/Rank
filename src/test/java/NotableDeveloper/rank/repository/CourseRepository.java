@@ -14,4 +14,5 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     boolean existsByTitleAndOfferedYearAndSemesterAndCode(String title, int offeredYear, Semester semester, String code);
     @Query("SELECT c FROM Course c WHERE c.offeredYear < :year OR (c.offeredYear = :year AND c.semester = :semester)")
     List<Course> findAllPreviousOrSameVersions(int year, Semester semester);
+    List<Course> findAllByCode(String code);
 }

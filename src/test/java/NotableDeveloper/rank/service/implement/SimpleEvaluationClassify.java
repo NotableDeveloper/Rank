@@ -1,7 +1,7 @@
 package NotableDeveloper.rank.service.implement;
 
-import NotableDeveloper.rank.domain.dto.CourseDto;
-import NotableDeveloper.rank.domain.dto.ProfessorDto;
+import NotableDeveloper.rank.domain.dto.CourseDataDto;
+import NotableDeveloper.rank.domain.dto.ProfessorDataDto;
 import NotableDeveloper.rank.domain.enums.Tier;
 import NotableDeveloper.rank.service.function.EvaluationClassify;
 import lombok.Getter;
@@ -13,8 +13,8 @@ import java.util.*;
 @Getter
 @Setter
 public class SimpleEvaluationClassify implements EvaluationClassify {
-    List<CourseDto> uniqueCourses;
-    List<ProfessorDto> uniqueProfessors;
+    List<CourseDataDto> uniqueCourses;
+    List<ProfessorDataDto> uniqueProfessors;
 
     public SimpleEvaluationClassify() {
         uniqueCourses = new ArrayList<>();
@@ -22,21 +22,21 @@ public class SimpleEvaluationClassify implements EvaluationClassify {
     }
 
     @Override
-    public void classifyCourse(List<CourseDto> courses) {
+    public void classifyCourse(List<CourseDataDto> courses) {
         distinctCourses(courses);
         calculateCoursePercentage();
         assignCourseTier();
     }
 
     @Override
-    public void classifyProfessor(List<ProfessorDto> professors) {
+    public void classifyProfessor(List<ProfessorDataDto> professors) {
         distinctProfessor(professors);
         calculateProfessorPercentage();
         assignProfessorTier();
     }
 
-    private void distinctCourses(List<CourseDto> courses) {
-        Map<List<Object>, CourseDto> courseMap = new HashMap<>();
+    private void distinctCourses(List<CourseDataDto> courses) {
+        Map<List<Object>, CourseDataDto> courseMap = new HashMap<>();
 
         courses.forEach(course -> {
             List<Object> key = Arrays.asList(
@@ -46,7 +46,7 @@ public class SimpleEvaluationClassify implements EvaluationClassify {
                     course.getSemester());
 
             if (courseMap.containsKey(key)) {
-                CourseDto existingCourse = courseMap.get(key);
+                CourseDataDto existingCourse = courseMap.get(key);
                 existingCourse.setCount(existingCourse.getCount() + 1);
                 existingCourse.setRating(existingCourse.getRating() + course.getRating());
             }
@@ -58,8 +58,8 @@ public class SimpleEvaluationClassify implements EvaluationClassify {
         });
     }
 
-    private void distinctProfessor(List<ProfessorDto> professors){
-        Map<List<Object>, ProfessorDto> professorMap = new HashMap<>();
+    private void distinctProfessor(List<ProfessorDataDto> professors){
+        Map<List<Object>, ProfessorDataDto> professorMap = new HashMap<>();
 
         professors.forEach(professor -> {
             List<Object> key = Arrays.asList(
@@ -76,14 +76,14 @@ public class SimpleEvaluationClassify implements EvaluationClassify {
     }
 
     private void calculateCoursePercentage() {
-        for (CourseDto course : uniqueCourses) {
+        for (CourseDataDto course : uniqueCourses) {
             float average = course.getRating() / course.getCount();
             course.setAverage(average);
         }
     }
 
     private void calculateProfessorPercentage(){
-        for(ProfessorDto professor : uniqueProfessors){
+        for(ProfessorDataDto professor : uniqueProfessors){
             float average = professor.getRating() / professor.getCount();
             professor.setAverage(average);
         }

@@ -1,6 +1,8 @@
 package NotableDeveloper.rank.test.service.CourseService;
 
 import NotableDeveloper.rank.domain.dto.CourseDetailDto;
+import NotableDeveloper.rank.domain.dto.CourseDto;
+import NotableDeveloper.rank.domain.dto.CourseHistoryDto;
 import NotableDeveloper.rank.domain.dto.ProfessorDetailDto;
 import NotableDeveloper.rank.domain.entity.Course;
 import NotableDeveloper.rank.domain.entity.CourseProfessor;
@@ -10,11 +12,9 @@ import NotableDeveloper.rank.domain.enums.Semester;
 import NotableDeveloper.rank.domain.enums.Tier;
 import NotableDeveloper.rank.domain.exceptiion.CourseNotFoundException;
 import NotableDeveloper.rank.repository.CourseProfessorRepository;
+import NotableDeveloper.rank.repository.CourseRepository;
 import NotableDeveloper.rank.service.CourseService;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
@@ -28,14 +28,19 @@ public class CourseServiceTest {
     @Mock
     CourseProfessorRepository courseProfessorRepository;
 
+    @Mock
+    CourseRepository courseRepository;
     static ArrayList<CourseProfessor> courseProfessors;
     @BeforeEach
     void setUp(){
         courseProfessors = new ArrayList<>();
 
         courseProfessorRepository = Mockito.mock(CourseProfessorRepository.class);
+        courseRepository = Mockito.mock(CourseRepository.class);
+
         courseService = new CourseService();
         courseService.setCourseProfessorRepository(courseProfessorRepository);
+        courseService.setCourseRepository(courseRepository);
 
         Course oop = Course.builder()
                 .title("객체지향 프로그래밍")
@@ -59,7 +64,7 @@ public class CourseServiceTest {
         sysp.setId(2L);
         sysp.setTier(Tier.A);
 
-        Course os = Course.builder()
+        Course os1 = Course.builder()
                 .title("운영체제")
                 .year(2023)
                 .semester(Semester.FIRST)
@@ -67,8 +72,19 @@ public class CourseServiceTest {
                 .rating(0.0F)
                 .build();
 
-        os.setId(3L);
-        os.setTier(Tier.B);
+        os1.setId(3L);
+        os1.setTier(Tier.B);
+
+        Course os2 = Course.builder()
+                .title("운영체제")
+                .year(2024)
+                .semester(Semester.FIRST)
+                .code("24681357")
+                .rating(0.0F)
+                .build();
+
+        os2.setId(4L);
+        os2.setTier(Tier.A);
 
         Professor professorKim = Professor.builder()
                 .name("김철수")
@@ -107,7 +123,12 @@ public class CourseServiceTest {
                 .build());
 
         courseProfessors.add(CourseProfessor.builder()
-                .course(os)
+                .course(os1)
+                .professor(professorPark)
+                .build());
+
+        courseProfessors.add(CourseProfessor.builder()
+                .course(os2)
                 .professor(professorPark)
                 .build());
     }
@@ -143,32 +164,26 @@ public class CourseServiceTest {
              CouserService에서 "프로그래밍"으로 강의를 검색한 경우에
              나올 것으로 예상되는 DTO List를 생성한다.
          */
-        ArrayList<CourseDetailDto> exceptedCourses =
-                (ArrayList<CourseDetailDto>) findAllByProgramming.stream()
-                        .map(cp -> CourseDetailDto.builder()
+        ArrayList<CourseDto> exceptedCourses =
+                (ArrayList<CourseDto>) findAllByProgramming.stream()
+                        .map(cp -> CourseDto.builder()
                                 .courseId(cp.getCourse().getId())
-                                .code(cp.getCourse().getCode())
+                                .title(cp.getCourse().getTitle())
                                 .year(cp.getCourse().getOfferedYear())
                                 .semester(cp.getCourse().getSemester())
-                                .title(cp.getCourse().getTitle())
                                 .tier(cp.getCourse().getTier())
-                                .professor(ProfessorDetailDto.builder()
-                                        .professorId(cp.getProfessor().getId())
-                                        .college(cp.getProfessor().getCollege())
-                                        .department(cp.getProfessor().getDepartment().getOriginalName())
-                                        .position(cp.getProfessor().getPosition())
-                                        .tier(cp.getProfessor().getTier())
-                                        .build())
+                                .professor(cp.getProfessor().getName())
+                                .department(cp.getProfessor().getDepartment().getOriginalName())
                                 .build())
                         .collect(Collectors.toList());
 
-        List<CourseDetailDto> findCourses = courseService.getCourseByTitle(title);
+        List<CourseDto> findCourses = courseService.getCourseByTitle(title);
 
         for(int i = 0; i < findCourses.size(); i++){
-            CourseDetailDto findCourse = findCourses.get(i);
-            CourseDetailDto expectedCourse = exceptedCourses.get(i);
+            CourseDto findCourse = findCourses.get(i);
+            CourseDto expectedCourse = exceptedCourses.get(i);
 
-            Assertions.assertEquals(expectedCourse, findCourse);
+            Assertions.assertEquals(expectedCourse.getCourseId(), findCourse.getCourseId());
         }
     }
 
@@ -183,7 +198,7 @@ public class CourseServiceTest {
     }
 
     @Test
-    @DisplayName("강의 ID로 검색할 때, 해당하는 강의가 있는 지를 검증한다.")
+    @DisplayName("강의 ID로 검색할 때, 해당하는 강의가 있는 지와 강의 내역을 잘 가져오는 지를 검증한다.")
     void 강의ID_검색_성공_테스트(){
         Long courseId = 3L;
 
@@ -194,6 +209,22 @@ public class CourseServiceTest {
 
         Course c = findByCourseId.getCourse();
         Professor p = findByCourseId.getProfessor();
+
+        List<Course> findAllByCourseCode = courseProfessors.stream()
+                .filter(cp -> cp.getCourse().getCode() == c.getCode())
+                .map(cp -> {
+                    Course course = cp.getCourse();
+                    return course;
+                }).collect(Collectors.toList());
+
+        List<CourseHistoryDto> history = findAllByCourseCode.stream()
+                .map(course -> CourseHistoryDto.builder()
+                        .courseId(course.getId())
+                        .tier(course.getTier())
+                        .year(course.getOfferedYear())
+                        .semester(course.getSemester())
+                        .build()
+                ).collect(Collectors.toList());
 
         ProfessorDetailDto professorDetailDto = ProfessorDetailDto.builder()
                 .professorId(p.getId())
@@ -209,15 +240,28 @@ public class CourseServiceTest {
                 .code(c.getCode())
                 .semester(c.getSemester())
                 .year(c.getOfferedYear())
-                .tier(c.getTier())
-                .professor(professorDetailDto).
-                build();
+                .courseTier(c.getTier())
+                .professor(professorDetailDto)
+                .history(history)
+                .build();
 
         Mockito.when(courseProfessorRepository.findByCourse_Id(courseId))
                 .thenReturn(findByCourseId);
 
+        Mockito.when(courseRepository.findAllByCode(c.getCode()))
+                .thenReturn(findAllByCourseCode);
+
         CourseDetailDto findCourse = courseService.getCourseById(courseId);
 
         Assertions.assertEquals(exceptedCourse.getCourseId(), findCourse.getCourseId());
+
+        for(int i = 0; i < findCourse.getHistory().size(); i++){
+            CourseHistoryDto saved = findCourse.getHistory().get(i);
+            CourseHistoryDto excepted = history.get(i);
+
+            Assertions.assertEquals(excepted.getYear(), saved.getYear());
+            Assertions.assertEquals(excepted.getSemester(), saved.getSemester());
+            Assertions.assertEquals(excepted.getTier(), saved.getTier());
+        }
     }
 }

@@ -14,7 +14,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -58,7 +57,7 @@ public class SimpleInjectService{
     }
 
     private void saveDepartment(){
-        for(DepartmentDto departmentDto : extractor.getDepartments()){
+        for(DepartmentDataDto departmentDto : extractor.getDepartments()){
             String college = departmentDto.getCollege();
             String originalName = departmentDto.getOriginalName();
 
@@ -69,7 +68,7 @@ public class SimpleInjectService{
     }
 
     private void saveCourse(){
-        for(CourseDto courseDto : extractor.getCourses()){
+        for(CourseDataDto courseDto : extractor.getCourses()){
             if(!courseRepository.existsByTitleAndOfferedYearAndSemesterAndCode(
                     courseDto.getTitle(),
                     courseDto.getYear(),
@@ -104,7 +103,7 @@ public class SimpleInjectService{
     }
 
     private void saveProfessor() {
-        for (ProfessorDto professorDto : extractor.getProfessors()) {
+        for (ProfessorDataDto professorDto : extractor.getProfessors()) {
             if (!professorRepository.existsByNameAndDepartment_OriginalName(
                     professorDto.getName(),
                     professorDto.getDepartment()
@@ -154,10 +153,10 @@ public class SimpleInjectService{
         if(rankVersionRepository.existsByYearAndSemesterAndClassifiedCourseIsTrue(year, semester))
             throw new ClassifyAlreadyException();
 
-        List<CourseDto> courses = courseRepository.findAllPreviousOrSameVersions(year, semester)
+        List<CourseDataDto> courses = courseRepository.findAllPreviousOrSameVersions(year, semester)
                 .stream()
                 .map(course ->
-                        CourseDto.builder().year(course.getOfferedYear())
+                        CourseDataDto.builder().year(course.getOfferedYear())
                                 .semester(course.getSemester())
                                 .code(course.getCode())
                                 .title(course.getTitle())
@@ -195,12 +194,12 @@ public class SimpleInjectService{
         if(rankVersionRepository.existsByYearAndSemesterAndClassifiedProfessorIsTrue(year, semester))
             throw new ClassifyAlreadyException();
 
-        List<ProfessorDto> professors = professorRepository.findAll()
+        List<ProfessorDataDto> professors = professorRepository.findAll()
                 .stream()
                 .map(professor -> {
                     List<CourseProfessor> courseProfessors = courseProfessorRepository.findAllByProfessor_Id(professor.getId());
 
-                    ProfessorDto p = ProfessorDto.builder()
+                    ProfessorDataDto p = ProfessorDataDto.builder()
                                     .name(professor.getName())
                                     .college(professor.getCollege())
                                     .position(professor.getPosition())
@@ -240,7 +239,7 @@ public class SimpleInjectService{
     }
 
     public void updateDepartments(int year, Semester semester){
-        if(rankVersionRepository.existsByYearAndSemesterAndInjectedIsTrue(year, semester))
+        if(!rankVersionRepository.existsByYearAndSemesterAndInjectedIsTrue(year, semester))
             throw new EvaluationNotFoundException();
 
         List<Department> departments = departmentRepository.findAll();

@@ -1,12 +1,15 @@
 package NotableDeveloper.rank.service;
 
 import NotableDeveloper.rank.domain.dto.CourseDetailDto;
+import NotableDeveloper.rank.domain.dto.CourseDto;
+import NotableDeveloper.rank.domain.dto.CourseHistoryDto;
 import NotableDeveloper.rank.domain.dto.ProfessorDetailDto;
 import NotableDeveloper.rank.domain.entity.Course;
 import NotableDeveloper.rank.domain.entity.CourseProfessor;
 import NotableDeveloper.rank.domain.entity.Professor;
 import NotableDeveloper.rank.domain.exceptiion.CourseNotFoundException;
 import NotableDeveloper.rank.repository.CourseProfessorRepository;
+import NotableDeveloper.rank.repository.CourseRepository;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,9 +20,10 @@ import java.util.List;
 @Setter
 public class CourseService {
     CourseProfessorRepository courseProfessorRepository;
+    CourseRepository courseRepository;
 
-    public List<CourseDetailDto> getCourseByTitle(String title){
-        List<CourseDetailDto> courses = new ArrayList<>();
+    public List<CourseDto> getCourseByTitle(String title){
+        List<CourseDto> courses = new ArrayList<>();
         ArrayList<CourseProfessor> courseProfessors = courseProfessorRepository.findAllByCourse_TitleContains(title);
 
         if(courseProfessors.size() <= 0)
@@ -29,23 +33,14 @@ public class CourseService {
             Professor p = cp.getProfessor();
             Course c = cp.getCourse();
 
-            ProfessorDetailDto professor = ProfessorDetailDto.builder()
-                    .professorId(p.getId())
-                    .name(p.getName())
-                    .college(p.getCollege())
-                    .department(p.getDepartment().getOriginalName())
-                    .position(p.getPosition())
-                    .tier(p.getTier())
-                    .build();
-
-            courses.add(CourseDetailDto.builder()
+            courses.add(CourseDto.builder()
                     .courseId(c.getId())
                     .title(c.getTitle())
-                    .code(c.getCode())
                     .year(c.getOfferedYear())
                     .semester(c.getSemester())
                     .tier(c.getTier())
-                    .professor(professor)
+                    .professor(p.getName())
+                    .department(p.getDepartment().getOriginalName())
                     .build());
         });
 
@@ -69,13 +64,32 @@ public class CourseService {
                 .tier(p.getTier())
                 .build();
 
+        List<CourseHistoryDto> history = getPreviousCourseHistory(c.getCode());
+
         return CourseDetailDto.builder()
                 .title(c.getTitle())
                 .year(c.getOfferedYear())
                 .semester(c.getSemester())
                 .courseId(c.getId())
-                .tier(c.getTier())
+                .courseTier(c.getTier())
                 .professor(professorDetailDto)
+                .history(history)
                 .build();
+    }
+
+    private List<CourseHistoryDto> getPreviousCourseHistory(String code){
+        List<Course> coursesByCode = courseRepository.findAllByCode(code);
+        List<CourseHistoryDto> history = new ArrayList<>();
+
+        coursesByCode.forEach(c -> {
+            history.add(CourseHistoryDto.builder()
+                    .courseId(c.getId())
+                    .year(c.getOfferedYear())
+                    .semester(c.getSemester())
+                    .tier(c.getTier())
+                    .build());
+        });
+
+        return history;
     }
 }
