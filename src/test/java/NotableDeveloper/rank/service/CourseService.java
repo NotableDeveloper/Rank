@@ -9,6 +9,7 @@ import NotableDeveloper.rank.domain.entity.CourseProfessor;
 import NotableDeveloper.rank.domain.entity.Professor;
 import NotableDeveloper.rank.domain.exceptiion.CourseNotFoundException;
 import NotableDeveloper.rank.repository.CourseProfessorRepository;
+import NotableDeveloper.rank.repository.CourseRepository;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,6 +20,7 @@ import java.util.List;
 @Setter
 public class CourseService {
     CourseProfessorRepository courseProfessorRepository;
+    CourseRepository courseRepository;
 
     public List<CourseDto> getCourseByTitle(String title){
         List<CourseDto> courses = new ArrayList<>();
@@ -30,15 +32,6 @@ public class CourseService {
         courseProfessors.forEach(cp -> {
             Professor p = cp.getProfessor();
             Course c = cp.getCourse();
-
-            ProfessorDetailDto professor = ProfessorDetailDto.builder()
-                    .professorId(p.getId())
-                    .name(p.getName())
-                    .college(p.getCollege())
-                    .department(p.getDepartment().getOriginalName())
-                    .position(p.getPosition())
-                    .tier(p.getTier())
-                    .build();
 
             courses.add(CourseDto.builder()
                     .courseId(c.getId())
@@ -71,7 +64,7 @@ public class CourseService {
                 .tier(p.getTier())
                 .build();
 
-        List<CourseHistoryDto> history = new ArrayList<>();
+        List<CourseHistoryDto> history = getPreviousCourseHistory(c.getCode());
 
         return CourseDetailDto.builder()
                 .title(c.getTitle())
@@ -80,11 +73,23 @@ public class CourseService {
                 .courseId(c.getId())
                 .courseTier(c.getTier())
                 .professor(professorDetailDto)
+                .history(history)
                 .build();
     }
 
-    private List<CourseDetailDto> getPreviousCourseHistory(){
-        ArrayList<CourseDetailDto> history = new ArrayList<>();
+    private List<CourseHistoryDto> getPreviousCourseHistory(String code){
+        List<Course> coursesByCode = courseRepository.findAllByCode(code);
+        List<CourseHistoryDto> history = new ArrayList<>();
+
+        coursesByCode.forEach(c -> {
+            history.add(CourseHistoryDto.builder()
+                    .courseId(c.getId())
+                    .year(c.getOfferedYear())
+                    .semester(c.getSemester())
+                    .tier(c.getTier())
+                    .build());
+        });
+
         return history;
     }
 }
