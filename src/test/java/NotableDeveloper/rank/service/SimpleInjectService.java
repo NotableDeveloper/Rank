@@ -57,7 +57,7 @@ public class SimpleInjectService{
     }
 
     private void saveDepartment(){
-        for(DepartmentDto departmentDto : extractor.getDepartments()){
+        for(DepartmentDataDto departmentDto : extractor.getDepartments()){
             String college = departmentDto.getCollege();
             String originalName = departmentDto.getOriginalName();
 
@@ -239,7 +239,7 @@ public class SimpleInjectService{
     }
 
     public void updateDepartments(int year, Semester semester){
-        if(rankVersionRepository.existsByYearAndSemesterAndInjectedIsTrue(year, semester))
+        if(!rankVersionRepository.existsByYearAndSemesterAndInjectedIsTrue(year, semester))
             throw new EvaluationNotFoundException();
 
         List<Department> departments = departmentRepository.findAll();

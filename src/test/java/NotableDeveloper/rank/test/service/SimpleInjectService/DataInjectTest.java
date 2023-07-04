@@ -1,7 +1,7 @@
 package NotableDeveloper.rank.test.service.SimpleInjectService;
 
 import NotableDeveloper.rank.domain.dto.CourseDataDto;
-import NotableDeveloper.rank.domain.dto.DepartmentDto;
+import NotableDeveloper.rank.domain.dto.DepartmentDataDto;
 import NotableDeveloper.rank.domain.dto.EvaluationDto;
 import NotableDeveloper.rank.domain.dto.ProfessorDto;
 import NotableDeveloper.rank.domain.entity.Course;
@@ -128,10 +128,10 @@ public class DataInjectTest {
             강의 평가 데이터가 주입되는 과정에서 학과 정보는 중복 되지 않고 한 번씩만
             DB에 등록 되어야 한다.
          */
-        HashSet<DepartmentDto> savedDepartments;
+        HashSet<DepartmentDataDto> savedDepartments;
 
         savedDepartments = evaluations.stream().map(evaluations ->
-                DepartmentDto.builder()
+                DepartmentDataDto.builder()
                         .college(evaluations.getCollege())
                         .originalName(evaluations.getDepartment())
                         .build())
@@ -139,7 +139,7 @@ public class DataInjectTest {
 
         simpleInjectService.saveEvaluates(2023, Semester.FIRST);
 
-        for(DepartmentDto savedDepartment : savedDepartments) {
+        for(DepartmentDataDto savedDepartment : savedDepartments) {
             String college = savedDepartment.getCollege();
             String originalName = savedDepartment.getOriginalName();
 
@@ -398,6 +398,12 @@ public class DataInjectTest {
                                 .year(year)
                                 .semester(semester)
                                 .build());
+
+        /*
+            학과 줄임말이 주입되려면 사전에 강의평가 데이터 주입이 완료되어야 한다.
+         */
+        Mockito.when(rankVersionRepository.existsByYearAndSemesterAndInjectedIsTrue(year, semester))
+                .thenReturn(true);
 
         Assertions.assertDoesNotThrow(() ->
                 simpleInjectService.updateDepartments(year, semester));

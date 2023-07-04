@@ -1,6 +1,5 @@
 package NotableDeveloper.rank.domain.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,13 +8,13 @@ import static java.util.Objects.hash;
 
 @Getter
 @Setter
-public class DepartmentDto {
+public class DepartmentDataDto {
     String college;
     String originalName;
     String shortenedName;
 
     @Builder
-    public DepartmentDto(String college, String originalName){
+    public DepartmentDataDto(String college, String originalName){
         this.college = college;
         this.originalName = originalName;
         this.shortenedName = "";
@@ -23,7 +22,7 @@ public class DepartmentDto {
 
     @Override
     public boolean equals(Object object){
-        DepartmentDto target = (DepartmentDto) object;
+        DepartmentDataDto target = (DepartmentDataDto) object;
 
         return
                 this.college == target.college

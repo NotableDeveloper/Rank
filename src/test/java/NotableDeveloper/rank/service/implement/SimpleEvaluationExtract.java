@@ -14,7 +14,7 @@ public class SimpleEvaluationExtract implements EvaluationExtract {
     private List<EvaluationDto> evaluations;
     private List<CourseDataDto> courses;
     private List<ProfessorDto> professors;
-    private Set<DepartmentDto> departments;
+    private Set<DepartmentDataDto> departments;
     private Map<String, String> shortenDepartments;
 
     public SimpleEvaluationExtract(){
@@ -22,7 +22,7 @@ public class SimpleEvaluationExtract implements EvaluationExtract {
         shortenDepartments = new HashMap();
     }
 
-    public Set<DepartmentDto> getDepartments() {
+    public Set<DepartmentDataDto> getDepartments() {
         return this.departments;
     }
 
@@ -32,7 +32,7 @@ public class SimpleEvaluationExtract implements EvaluationExtract {
         professors = new ArrayList<>();
 
         for(EvaluationDto evaluationDto : evaluations){
-            departments.add(DepartmentDto.builder()
+            departments.add(DepartmentDataDto.builder()
                     .college(evaluationDto.getCollege())
                     .originalName(evaluationDto.getDepartment())
                     .build());
