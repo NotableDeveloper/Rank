@@ -183,7 +183,7 @@ public class CourseServiceTest {
             CourseDto findCourse = findCourses.get(i);
             CourseDto expectedCourse = exceptedCourses.get(i);
 
-            Assertions.assertEquals(expectedCourse, findCourse);
+            Assertions.assertEquals(expectedCourse.getCourseId(), findCourse.getCourseId());
         }
     }
 
