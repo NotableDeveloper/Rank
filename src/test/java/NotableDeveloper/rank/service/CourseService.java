@@ -1,6 +1,8 @@
 package NotableDeveloper.rank.service;
 
 import NotableDeveloper.rank.domain.dto.CourseDetailDto;
+import NotableDeveloper.rank.domain.dto.CourseDto;
+import NotableDeveloper.rank.domain.dto.CourseHistoryDto;
 import NotableDeveloper.rank.domain.dto.ProfessorDetailDto;
 import NotableDeveloper.rank.domain.entity.Course;
 import NotableDeveloper.rank.domain.entity.CourseProfessor;
@@ -18,8 +20,8 @@ import java.util.List;
 public class CourseService {
     CourseProfessorRepository courseProfessorRepository;
 
-    public List<CourseDetailDto> getCourseByTitle(String title){
-        List<CourseDetailDto> courses = new ArrayList<>();
+    public List<CourseDto> getCourseByTitle(String title){
+        List<CourseDto> courses = new ArrayList<>();
         ArrayList<CourseProfessor> courseProfessors = courseProfessorRepository.findAllByCourse_TitleContains(title);
 
         if(courseProfessors.size() <= 0)
@@ -38,14 +40,14 @@ public class CourseService {
                     .tier(p.getTier())
                     .build();
 
-            courses.add(CourseDetailDto.builder()
+            courses.add(CourseDto.builder()
                     .courseId(c.getId())
                     .title(c.getTitle())
-                    .code(c.getCode())
                     .year(c.getOfferedYear())
                     .semester(c.getSemester())
                     .tier(c.getTier())
-                    .professor(professor)
+                    .professor(p.getName())
+                    .department(p.getDepartment().getOriginalName())
                     .build());
         });
 
@@ -69,12 +71,14 @@ public class CourseService {
                 .tier(p.getTier())
                 .build();
 
+        List<CourseHistoryDto> history = new ArrayList<>();
+
         return CourseDetailDto.builder()
                 .title(c.getTitle())
                 .year(c.getOfferedYear())
                 .semester(c.getSemester())
                 .courseId(c.getId())
-                .tier(c.getTier())
+                .courseTier(c.getTier())
                 .professor(professorDetailDto)
                 .build();
     }
