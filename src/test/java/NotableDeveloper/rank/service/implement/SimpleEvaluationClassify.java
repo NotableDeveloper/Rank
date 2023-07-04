@@ -1,7 +1,7 @@
 package NotableDeveloper.rank.service.implement;
 
 import NotableDeveloper.rank.domain.dto.CourseDataDto;
-import NotableDeveloper.rank.domain.dto.ProfessorDto;
+import NotableDeveloper.rank.domain.dto.ProfessorDataDto;
 import NotableDeveloper.rank.domain.enums.Tier;
 import NotableDeveloper.rank.service.function.EvaluationClassify;
 import lombok.Getter;
@@ -14,7 +14,7 @@ import java.util.*;
 @Setter
 public class SimpleEvaluationClassify implements EvaluationClassify {
     List<CourseDataDto> uniqueCourses;
-    List<ProfessorDto> uniqueProfessors;
+    List<ProfessorDataDto> uniqueProfessors;
 
     public SimpleEvaluationClassify() {
         uniqueCourses = new ArrayList<>();
@@ -29,7 +29,7 @@ public class SimpleEvaluationClassify implements EvaluationClassify {
     }
 
     @Override
-    public void classifyProfessor(List<ProfessorDto> professors) {
+    public void classifyProfessor(List<ProfessorDataDto> professors) {
         distinctProfessor(professors);
         calculateProfessorPercentage();
         assignProfessorTier();
@@ -58,8 +58,8 @@ public class SimpleEvaluationClassify implements EvaluationClassify {
         });
     }
 
-    private void distinctProfessor(List<ProfessorDto> professors){
-        Map<List<Object>, ProfessorDto> professorMap = new HashMap<>();
+    private void distinctProfessor(List<ProfessorDataDto> professors){
+        Map<List<Object>, ProfessorDataDto> professorMap = new HashMap<>();
 
         professors.forEach(professor -> {
             List<Object> key = Arrays.asList(
@@ -83,7 +83,7 @@ public class SimpleEvaluationClassify implements EvaluationClassify {
     }
 
     private void calculateProfessorPercentage(){
-        for(ProfessorDto professor : uniqueProfessors){
+        for(ProfessorDataDto professor : uniqueProfessors){
             float average = professor.getRating() / professor.getCount();
             professor.setAverage(average);
         }

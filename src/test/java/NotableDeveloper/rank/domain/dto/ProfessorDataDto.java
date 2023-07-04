@@ -1,7 +1,6 @@
 package NotableDeveloper.rank.domain.dto;
 
 import NotableDeveloper.rank.domain.enums.Tier;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,7 +9,7 @@ import static java.util.Objects.hash;
 
 @Getter
 @Setter
-public class ProfessorDto implements Comparable<ProfessorDto> {
+public class ProfessorDataDto implements Comparable<ProfessorDataDto> {
     String name;
     String college;
     String department;
@@ -21,7 +20,7 @@ public class ProfessorDto implements Comparable<ProfessorDto> {
     Tier tier;
 
     @Builder
-    public ProfessorDto(String name, String college, String department, String position){
+    public ProfessorDataDto(String name, String college, String department, String position){
         this.name = name;
         this.college = college;
         this.department = department;
@@ -34,7 +33,7 @@ public class ProfessorDto implements Comparable<ProfessorDto> {
 
     @Override
     public boolean equals(Object object){
-        ProfessorDto professorDto = (ProfessorDto) object;
+        ProfessorDataDto professorDto = (ProfessorDataDto) object;
 
         return this.getName() == professorDto.getName() &&
                 this.getDepartment() == professorDto.getDepartment() &&
@@ -47,7 +46,7 @@ public class ProfessorDto implements Comparable<ProfessorDto> {
     }
 
     @Override
-    public int compareTo(ProfessorDto o) {
+    public int compareTo(ProfessorDataDto o) {
         return 0;
     }
 }

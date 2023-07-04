@@ -3,7 +3,7 @@ package NotableDeveloper.rank.test.service.SimpleInjectService;
 import NotableDeveloper.rank.domain.dto.CourseDataDto;
 import NotableDeveloper.rank.domain.dto.DepartmentDataDto;
 import NotableDeveloper.rank.domain.dto.EvaluationDto;
-import NotableDeveloper.rank.domain.dto.ProfessorDto;
+import NotableDeveloper.rank.domain.dto.ProfessorDataDto;
 import NotableDeveloper.rank.domain.entity.Course;
 import NotableDeveloper.rank.domain.entity.Department;
 import NotableDeveloper.rank.domain.entity.Professor;
@@ -262,9 +262,9 @@ public class DataInjectTest {
             강의 평가 데이터가 주입되는 과정에서 교수 정보는 중복되지 않고 저장되어야 한다.
             또, 사전에 학과 정보가 먼저 저장되어 있어야 한다.
          */
-        ArrayList<ProfessorDto> evaluationProfessors =
-                (ArrayList<ProfessorDto>) evaluations.stream().map(evaluation ->
-                        ProfessorDto.builder()
+        ArrayList<ProfessorDataDto> evaluationProfessors =
+                (ArrayList<ProfessorDataDto>) evaluations.stream().map(evaluation ->
+                        ProfessorDataDto.builder()
                                 .college(evaluation.getCollege())
                                 .department(evaluation.getDepartment())
                                 .name(evaluation.getProfessorName())
@@ -277,7 +277,7 @@ public class DataInjectTest {
             학과 정보를 검색하는 메서드에 대해 처리한다.
             또, 이미 등록된 교수인 지를 확인하는 메서드에 대해서도 처리한다.
          */
-        for(ProfessorDto professorDto : evaluationProfessors){
+        for(ProfessorDataDto professorDto : evaluationProfessors){
             Department mockDepartment = new Department(
                     professorDto.getCollege(),
                     professorDto.getDepartment());

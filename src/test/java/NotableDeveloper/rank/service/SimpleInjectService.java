@@ -103,7 +103,7 @@ public class SimpleInjectService{
     }
 
     private void saveProfessor() {
-        for (ProfessorDto professorDto : extractor.getProfessors()) {
+        for (ProfessorDataDto professorDto : extractor.getProfessors()) {
             if (!professorRepository.existsByNameAndDepartment_OriginalName(
                     professorDto.getName(),
                     professorDto.getDepartment()
@@ -194,12 +194,12 @@ public class SimpleInjectService{
         if(rankVersionRepository.existsByYearAndSemesterAndClassifiedProfessorIsTrue(year, semester))
             throw new ClassifyAlreadyException();
 
-        List<ProfessorDto> professors = professorRepository.findAll()
+        List<ProfessorDataDto> professors = professorRepository.findAll()
                 .stream()
                 .map(professor -> {
                     List<CourseProfessor> courseProfessors = courseProfessorRepository.findAllByProfessor_Id(professor.getId());
 
-                    ProfessorDto p = ProfessorDto.builder()
+                    ProfessorDataDto p = ProfessorDataDto.builder()
                                     .name(professor.getName())
                                     .college(professor.getCollege())
                                     .position(professor.getPosition())

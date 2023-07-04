@@ -2,7 +2,7 @@ package NotableDeveloper.rank.test.service.SimpleInjectService;
 
 import NotableDeveloper.rank.domain.dto.CourseDataDto;
 import NotableDeveloper.rank.domain.dto.EvaluationDto;
-import NotableDeveloper.rank.domain.dto.ProfessorDto;
+import NotableDeveloper.rank.domain.dto.ProfessorDataDto;
 import NotableDeveloper.rank.domain.entity.*;
 import NotableDeveloper.rank.domain.enums.Tier;
 import NotableDeveloper.rank.domain.exceptiion.ClassifyAlreadyException;
@@ -243,9 +243,9 @@ public class DataClassifyTest {
     @Test
     @DisplayName("교수 데이터에 등급을 부여할 때, 백분율을 계산한다.")
     void 교수_등급_정상부여_테스트(){
-        ArrayList<ProfessorDto> expectedProfessors = new ArrayList<>();
-        Map<List<Object>, ProfessorDto> keyMap = new HashMap<>();
-        List<ProfessorDto> professors = simpleInjectService.getExtractor().getProfessors();
+        ArrayList<ProfessorDataDto> expectedProfessors = new ArrayList<>();
+        Map<List<Object>, ProfessorDataDto> keyMap = new HashMap<>();
+        List<ProfessorDataDto> professors = simpleInjectService.getExtractor().getProfessors();
 
         professors.forEach(professor -> {
             List<Object> key = Arrays.asList(
@@ -305,7 +305,7 @@ public class DataClassifyTest {
                 expectedProfessors.get(i).setTier(Tier.D_MINUS);
         }
 
-        for(ProfessorDto professor : expectedProfessors) {
+        for(ProfessorDataDto professor : expectedProfessors) {
             Mockito.when(professorRepository.findByNameAndDepartment_OriginalName(
                     professor.getName(), professor.getDepartment()))
                     .thenReturn(Professor.builder()
@@ -321,9 +321,9 @@ public class DataClassifyTest {
 
         simpleInjectService.getClassification().setUniqueProfessors(expectedProfessors);
         simpleInjectService.updateProfessors(year, semester);
-        List<ProfessorDto> savedProfessors = simpleInjectService.getClassification().getUniqueProfessors();
+        List<ProfessorDataDto> savedProfessors = simpleInjectService.getClassification().getUniqueProfessors();
 
-        for(ProfessorDto expected : expectedProfessors)
+        for(ProfessorDataDto expected : expectedProfessors)
             Assertions.assertEquals(true, savedProfessors.contains(expected));
 
         Mockito.verify(professorRepository,
