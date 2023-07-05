@@ -87,13 +87,24 @@ public class ProfessorServiceTest {
         os2.setId(4L);
         os2.setTier(Tier.A);
 
+        Department soft = Department.builder()
+                .college("IT대학")
+                .originalName("소프트웨어학부")
+                .build();
+
+        soft.setId(1L);
+
+        Department computer = Department.builder()
+                .originalName("컴퓨터학부")
+                .college("IT대학")
+                .build();
+
+        computer.setId(2L);
+
         Professor professorKim = Professor.builder()
                 .name("김철수")
                 .college("IT대학")
-                .department(Department.builder()
-                        .college("IT대학")
-                        .originalName("컴퓨터학부")
-                        .build())
+                .department(computer)
                 .position("교수")
                 .build();
 
@@ -103,10 +114,7 @@ public class ProfessorServiceTest {
         Professor professorPark = Professor.builder()
                 .name("박철수")
                 .college("IT대학")
-                .department(Department.builder()
-                        .college("IT대학")
-                        .originalName("소프트웨어학부")
-                        .build())
+                .department(soft)
                 .position("강사")
                 .build();
 
@@ -143,7 +151,7 @@ public class ProfessorServiceTest {
                 .thenReturn(new ArrayList<>());
 
         Assertions.assertThrows(ProfessorNotFoundException.class,
-                () -> professorService.getProfessorByName(name));
+                () -> professorService.getProfessorsByName(name));
     }
 
     @Test
@@ -168,7 +176,7 @@ public class ProfessorServiceTest {
                         .build())
                 .collect(Collectors.toList());
 
-        List<ProfessorDto> findProfessors = professorService.getProfessorByName(name);
+        List<ProfessorDto> findProfessors = professorService.getProfessorsByName(name);
 
         for(int i = 0; i < findProfessors.size(); i++){
             ProfessorDto excepted = exceptedProfessors.get(i);
@@ -182,4 +190,16 @@ public class ProfessorServiceTest {
         }
     }
 
+
+    @Test
+    @DisplayName("특정 학과에 소속된 교수들을 검색할 때, 결과가 없다면 예외가 발생한다.")
+    void 교수_학과ID_검색_실패_테스트(){
+        Long departmentId = 9999L;
+
+        Mockito.when(professorRepository.findAllByDepartment_Id(departmentId))
+                .thenReturn(new ArrayList<>());
+
+        Assertions.assertThrows(ProfessorNotFoundException.class,
+                () -> professorService.getProfessorsByDepartment(departmentId));
+    }
 }

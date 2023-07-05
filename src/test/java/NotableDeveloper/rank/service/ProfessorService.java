@@ -17,12 +17,10 @@ public class ProfessorService {
     ProfessorRepository professorRepository;
     CourseProfessorRepository courseProfessorRepository;
 
-    public List<ProfessorDto> getProfessorByName(String name){
+    public List<ProfessorDto> getProfessorsByName(String name){
         List<Professor> professorsByName = professorRepository.findAllByNameContains(name);
 
-        if(professorsByName.size() <= 0){
-            throw new ProfessorNotFoundException();
-        }
+        if(professorsByName.size() <= 0) throw new ProfessorNotFoundException();
 
         return professorsByName.stream()
                 .map(p -> ProfessorDto.builder()
@@ -31,6 +29,22 @@ public class ProfessorService {
                         .department(p.getDepartment().getOriginalName())
                         .name(p.getName())
                         .tier(p.getTier())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    public List<ProfessorDto> getProfessorsByDepartment(Long departmentId){
+        List<Professor> professorsByDepartment = professorRepository.findAllByDepartment_Id(departmentId);
+
+        if(professorsByDepartment.size() <= 0) throw new ProfessorNotFoundException();
+
+        return professorsByDepartment.stream()
+                .map(p -> ProfessorDto.builder()
+                        .name(p.getName())
+                        .professorId(p.getId())
+                        .tier(p.getTier())
+                        .position(p.getPosition())
+                        .department(p.getDepartment().getOriginalName())
                         .build())
                 .collect(Collectors.toList());
     }

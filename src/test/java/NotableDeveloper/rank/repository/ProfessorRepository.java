@@ -10,6 +10,6 @@ import java.util.List;
 public interface ProfessorRepository extends JpaRepository<Professor, Long> {
     boolean existsByNameAndDepartment_OriginalName(String name, String originalName);
     Professor findByNameAndDepartment_OriginalName(String name, String originalName);
-
     List<Professor> findAllByNameContains(String name);
+    List<Professor> findAllByDepartment_Id(Long departmentId);
 }
