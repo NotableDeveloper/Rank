@@ -1,6 +1,7 @@
 package NotableDeveloper.rank.test.service.ProfessorService;
 
 import NotableDeveloper.rank.domain.dto.ProfessorDto;
+import NotableDeveloper.rank.domain.entity.CourseProfessor;
 import NotableDeveloper.rank.domain.entity.Professor;
 import NotableDeveloper.rank.domain.exceptiion.ProfessorNotFoundException;
 import NotableDeveloper.rank.repository.CourseProfessorRepository;
@@ -96,5 +97,54 @@ public class ProfessorServiceTest {
 
         Assertions.assertThrows(ProfessorNotFoundException.class,
                 () -> professorService.getProfessorsByDepartment(departmentId));
+    }
+
+    @Test
+    @DisplayName("특정 학과에 소속된 교수들을 검색할 때, 결과가 올바른 지를 검증한다.")
+    void 교수_학과ID_검색_성공_테스트(){
+        Long departmentId = 1L;
+
+        List<CourseProfessor> courseProfessors = rankData.getCourseProfessors();
+
+        List<ProfessorDto> exceptedProfessors = courseProfessors.stream()
+                .filter(cp -> cp.getProfessor()
+                        .getDepartment()
+                        .getId()
+                        .equals(departmentId)
+                ).map(cp -> {
+                    Professor p = cp.getProfessor();
+
+                    return ProfessorDto.builder().professorId(p.getId())
+                            .department(p.getDepartment().getOriginalName())
+                            .name(p.getName())
+                            .position(p.getPosition())
+                            .tier(p.getTier())
+                            .build();
+                }).collect(Collectors.toList());
+
+        List<Professor> professorsByDepartment = courseProfessors.stream()
+                .filter(cp -> cp.getProfessor()
+                        .getDepartment()
+                        .getId()
+                        .equals(departmentId)
+                ).map(cp -> cp.getProfessor())
+                .collect(Collectors.toList());
+
+        Mockito.when(professorRepository.findAllByDepartment_Id(departmentId))
+                .thenReturn(professorsByDepartment);
+
+
+        List<ProfessorDto> findProfessors = professorService.getProfessorsByDepartment(departmentId);
+
+        for(int i = 0; i < findProfessors.size(); i++){
+            ProfessorDto excepted = exceptedProfessors.get(i);
+            ProfessorDto find = findProfessors.get(i);
+
+            Assertions.assertEquals(excepted.getProfessorId(), find.getProfessorId());
+            Assertions.assertEquals(excepted.getName(), find.getName());
+            Assertions.assertEquals(excepted.getPosition(), find.getPosition());
+            Assertions.assertEquals(excepted.getDepartment(), find.getDepartment());
+            Assertions.assertEquals(excepted.getTier(), find.getTier());
+        }
     }
 }
