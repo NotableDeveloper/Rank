@@ -1,12 +1,7 @@
 package NotableDeveloper.rank.test.service.ProfessorService;
 
 import NotableDeveloper.rank.domain.dto.ProfessorDto;
-import NotableDeveloper.rank.domain.entity.Course;
-import NotableDeveloper.rank.domain.entity.CourseProfessor;
-import NotableDeveloper.rank.domain.entity.Department;
 import NotableDeveloper.rank.domain.entity.Professor;
-import NotableDeveloper.rank.domain.enums.Semester;
-import NotableDeveloper.rank.domain.enums.Tier;
 import NotableDeveloper.rank.domain.exceptiion.ProfessorNotFoundException;
 import NotableDeveloper.rank.repository.CourseProfessorRepository;
 import NotableDeveloper.rank.repository.ProfessorRepository;

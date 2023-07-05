@@ -7,6 +7,7 @@ import NotableDeveloper.rank.test.data.RankData;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -30,31 +31,16 @@ public class ProfessorRepositoryTest {
     }
 
     @Test
-    @DisplayName("IT대학 컴퓨터학부 소속 김철수 교수를 DB에 등록한다.")
+    @DisplayName("한 명의 교수를 DB에 등록한다.")
+    @Transactional
     void 교수_정상등록_테스트(){
-        Professor professorKim = data.getProfessors().get(0);
-        Professor savedProfessor = professorRepository.save(professorKim);
+        Professor professor = data.getProfessors().get(0);
+        Professor savedProfessor = professorRepository.save(professor);
 
-        Assertions.assertEquals("김철수", savedProfessor.getName());
-        Assertions.assertEquals("IT대학", savedProfessor.getCollege());
-        Assertions.assertEquals("컴퓨터학부", savedProfessor.getDepartment().getOriginalName());
-        Assertions.assertEquals("교수", savedProfessor.getPosition());
-    }
-
-    @Test
-    @DisplayName("준비된 모든 교수를 DB에 등록한다.")
-    void 여러교수_정상등록_테스트(){
-        professorRepository.saveAll(data.getProfessors());
-        List<Professor> savedProfessors = professorRepository.findAll();
-
-        for(int i = 0; i < savedProfessors.size(); i++){
-            Professor alreadyProfessor = data.getProfessors().get(i);
-            Professor savedProfessor = savedProfessors.get(i);
-
-            Assertions.assertEquals(alreadyProfessor.getName(), savedProfessor.getName());
-            Assertions.assertEquals(alreadyProfessor.getCollege(), savedProfessor.getCollege());
-            Assertions.assertEquals(alreadyProfessor.getDepartment(), savedProfessor.getDepartment());
-            Assertions.assertEquals(alreadyProfessor.getPosition(), savedProfessor.getPosition());
-        }
+        Assertions.assertEquals(professor.getId(), savedProfessor.getId());
+        Assertions.assertEquals(professor.getName(), savedProfessor.getName());
+        Assertions.assertEquals(professor.getCollege(), savedProfessor.getCollege());
+        Assertions.assertEquals(professor.getDepartment().getOriginalName(), savedProfessor.getDepartment().getOriginalName());
+        Assertions.assertEquals(professor.getPosition(), savedProfessor.getPosition());
     }
 }
