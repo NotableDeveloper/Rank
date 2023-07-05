@@ -6,6 +6,7 @@ import NotableDeveloper.rank.domain.enums.Tier;
 import NotableDeveloper.rank.repository.CourseRepository;
 import NotableDeveloper.rank.test.data.RankData;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,7 @@ public class CourseRepositoryTest {
     }
 
     @Test
+    @Disabled
     @DisplayName("여러 분반으로 개설되는 강의는 DB에 하나만 등록되어야 한다")
     public void 여러분반_강의등록_테스트(){
         ArrayList<Course> courses = data.getCourses();

@@ -6,14 +6,12 @@ import NotableDeveloper.rank.domain.dto.CourseHistoryDto;
 import NotableDeveloper.rank.domain.dto.ProfessorDetailDto;
 import NotableDeveloper.rank.domain.entity.Course;
 import NotableDeveloper.rank.domain.entity.CourseProfessor;
-import NotableDeveloper.rank.domain.entity.Department;
 import NotableDeveloper.rank.domain.entity.Professor;
-import NotableDeveloper.rank.domain.enums.Semester;
-import NotableDeveloper.rank.domain.enums.Tier;
 import NotableDeveloper.rank.domain.exceptiion.CourseNotFoundException;
 import NotableDeveloper.rank.repository.CourseProfessorRepository;
 import NotableDeveloper.rank.repository.CourseRepository;
 import NotableDeveloper.rank.service.CourseService;
+import NotableDeveloper.rank.test.data.RankData;
 import org.junit.jupiter.api.*;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -24,113 +22,19 @@ import java.util.stream.Collectors;
 
 public class CourseServiceTest {
     CourseService courseService;
-
     @Mock
     CourseProfessorRepository courseProfessorRepository;
-
     @Mock
     CourseRepository courseRepository;
-    static ArrayList<CourseProfessor> courseProfessors;
+    static RankData rankData = new RankData();
     @BeforeEach
     void setUp(){
-        courseProfessors = new ArrayList<>();
-
         courseProfessorRepository = Mockito.mock(CourseProfessorRepository.class);
         courseRepository = Mockito.mock(CourseRepository.class);
 
         courseService = new CourseService();
         courseService.setCourseProfessorRepository(courseProfessorRepository);
         courseService.setCourseRepository(courseRepository);
-
-        Course oop = Course.builder()
-                .title("객체지향 프로그래밍")
-                .year(2023)
-                .semester(Semester.FIRST)
-                .code("12345678")
-                .rating(0.0F)
-                .build();
-
-        oop.setId(1L);
-        oop.setTier(Tier.A);
-
-        Course sysp = Course.builder()
-                .title("시스템 프로그래밍")
-                .year(2023)
-                .semester(Semester.FIRST)
-                .code("87654321")
-                .rating(0.0F)
-                .build();
-
-        sysp.setId(2L);
-        sysp.setTier(Tier.A);
-
-        Course os1 = Course.builder()
-                .title("운영체제")
-                .year(2023)
-                .semester(Semester.FIRST)
-                .code("24681357")
-                .rating(0.0F)
-                .build();
-
-        os1.setId(3L);
-        os1.setTier(Tier.B);
-
-        Course os2 = Course.builder()
-                .title("운영체제")
-                .year(2024)
-                .semester(Semester.FIRST)
-                .code("24681357")
-                .rating(0.0F)
-                .build();
-
-        os2.setId(4L);
-        os2.setTier(Tier.A);
-
-        Professor professorKim = Professor.builder()
-                .name("김철수")
-                .college("IT대학")
-                .department(Department.builder()
-                        .college("IT대학")
-                        .originalName("컴퓨터학부")
-                        .build())
-                .position("교수")
-                .build();
-
-        professorKim.setId(1L);
-        professorKim.setTier(Tier.A_MINUS);
-
-        Professor professorPark = Professor.builder()
-                .name("박철수")
-                .college("IT대학")
-                .department(Department.builder()
-                        .college("IT대학")
-                        .originalName("소프트웨어학부")
-                        .build())
-                .position("강사")
-                .build();
-
-        professorPark.setId(2L);
-        professorPark.setTier(Tier.B_PLUS);
-
-        courseProfessors.add(CourseProfessor.builder()
-                .course(oop)
-                .professor(professorKim)
-                .build());
-
-        courseProfessors.add(CourseProfessor.builder()
-                .course(sysp)
-                .professor(professorKim)
-                .build());
-
-        courseProfessors.add(CourseProfessor.builder()
-                .course(os1)
-                .professor(professorPark)
-                .build());
-
-        courseProfessors.add(CourseProfessor.builder()
-                .course(os2)
-                .professor(professorPark)
-                .build());
     }
 
     @Test
@@ -153,7 +57,7 @@ public class CourseServiceTest {
             "프로그래밍"을 검색하는 경우에 추출한 강의-교수 정보를 반환하도록 한다.
          */
         ArrayList<CourseProfessor> findAllByProgramming = (ArrayList<CourseProfessor>)
-                courseProfessors.stream().filter(cp ->
+                rankData.getCourseProfessors().stream().filter(cp ->
                         cp.getCourse().getTitle().contains(title))
                         .collect(Collectors.toList());
 
@@ -202,7 +106,7 @@ public class CourseServiceTest {
     void 강의ID_검색_성공_테스트(){
         Long courseId = 3L;
 
-        CourseProfessor findByCourseId = courseProfessors.stream()
+        CourseProfessor findByCourseId = rankData.getCourseProfessors().stream()
                 .filter(cp -> cp.getCourse().getId().equals(courseId))
                 .findFirst()
                 .orElse(null);
@@ -210,7 +114,7 @@ public class CourseServiceTest {
         Course c = findByCourseId.getCourse();
         Professor p = findByCourseId.getProfessor();
 
-        List<Course> findAllByCourseCode = courseProfessors.stream()
+        List<Course> findAllByCourseCode = rankData.getCourseProfessors().stream()
                 .filter(cp -> cp.getCourse().getCode() == c.getCode())
                 .map(cp -> {
                     Course course = cp.getCourse();
