@@ -1,5 +1,6 @@
 package NotableDeveloper.rank.service;
 
+import NotableDeveloper.rank.domain.dto.ProfessorDetailDto;
 import NotableDeveloper.rank.domain.dto.ProfessorDto;
 import NotableDeveloper.rank.domain.entity.Professor;
 import NotableDeveloper.rank.domain.exceptiion.ProfessorNotFoundException;

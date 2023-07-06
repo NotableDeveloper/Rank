@@ -1,9 +1,6 @@
 package NotableDeveloper.rank.service;
 
-import NotableDeveloper.rank.domain.dto.CourseDetailDto;
-import NotableDeveloper.rank.domain.dto.CourseDto;
-import NotableDeveloper.rank.domain.dto.CourseHistoryDto;
-import NotableDeveloper.rank.domain.dto.ProfessorDetailDto;
+import NotableDeveloper.rank.domain.dto.*;
 import NotableDeveloper.rank.domain.entity.Course;
 import NotableDeveloper.rank.domain.entity.CourseProfessor;
 import NotableDeveloper.rank.domain.entity.Professor;
@@ -55,11 +52,10 @@ public class CourseService {
         Course c = cpByCourseId.getCourse();
         Professor p = cpByCourseId.getProfessor();
 
-        ProfessorDetailDto professorDetailDto = ProfessorDetailDto.builder()
+        ProfessorDto professorDto = ProfessorDto.builder()
                 .name(p.getName())
                 .professorId(p.getId())
                 .department(p.getDepartment().getOriginalName())
-                .college(p.getCollege())
                 .position(p.getPosition())
                 .tier(p.getTier())
                 .build();
@@ -72,7 +68,7 @@ public class CourseService {
                 .semester(c.getSemester())
                 .courseId(c.getId())
                 .courseTier(c.getTier())
-                .professor(professorDetailDto)
+                .professor(professorDto)
                 .history(history)
                 .build();
     }

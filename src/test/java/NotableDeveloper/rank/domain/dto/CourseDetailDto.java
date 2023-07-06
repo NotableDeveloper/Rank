@@ -18,6 +18,6 @@ public class CourseDetailDto {
     int year;
     Semester semester;
     Tier courseTier;
-    ProfessorDetailDto professor;
+    ProfessorDto professor;
     List<CourseHistoryDto> history;
 }

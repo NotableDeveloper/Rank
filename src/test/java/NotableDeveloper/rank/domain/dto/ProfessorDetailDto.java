@@ -4,8 +4,8 @@ import NotableDeveloper.rank.domain.enums.Tier;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import java.util.List;
 
-import static java.util.Objects.hash;
 
 @Getter
 @Setter
@@ -16,20 +16,7 @@ public class ProfessorDetailDto {
     String college;
     String department;
     String position;
-    Tier tier;
-
-    @Override
-    public boolean equals(Object object){
-        ProfessorDetailDto professorDto = (ProfessorDetailDto) object;
-
-        return this.getName() == professorDto.getName() &&
-                this.getDepartment() == professorDto.getDepartment() &&
-                this.getPosition() == professorDto.getPosition();
-    }
-
-    @Override
-    public int hashCode(){
-        return hash(this.getName(), this.getCollege(), this.getDepartment(), this.getPosition());
-    }
-
+    Tier professorTier;
+    int courseCount;
+    List<CourseHistoryDto> offeredCourses;
 }
