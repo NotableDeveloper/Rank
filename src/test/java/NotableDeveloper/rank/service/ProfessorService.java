@@ -1,7 +1,10 @@
 package NotableDeveloper.rank.service;
 
+import NotableDeveloper.rank.domain.dto.CourseHistoryDto;
 import NotableDeveloper.rank.domain.dto.ProfessorDetailDto;
 import NotableDeveloper.rank.domain.dto.ProfessorDto;
+import NotableDeveloper.rank.domain.entity.Course;
+import NotableDeveloper.rank.domain.entity.CourseProfessor;
 import NotableDeveloper.rank.domain.entity.Professor;
 import NotableDeveloper.rank.domain.exceptiion.ProfessorNotFoundException;
 import NotableDeveloper.rank.repository.CourseProfessorRepository;
@@ -9,6 +12,7 @@ import NotableDeveloper.rank.repository.ProfessorRepository;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,5 +52,40 @@ public class ProfessorService {
                         .department(p.getDepartment().getOriginalName())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    public ProfessorDetailDto getProfessorById(Long professorId){
+        ArrayList<CourseProfessor> professorById = courseProfessorRepository.findAllByProfessor_Id(professorId);
+
+        if(professorById.size() <= 0)
+            throw new ProfessorNotFoundException();
+
+        Professor p = professorById.get(0).getProfessor();
+
+        List<CourseHistoryDto> offeredCourses = professorById.stream()
+                .map(cp -> {
+                    Course c = cp.getCourse();
+
+                    return CourseHistoryDto.builder()
+                            .courseId(c.getId())
+                            .year(c.getOfferedYear())
+                            .semester(c.getSemester())
+                            .tier(c.getTier())
+                            .title(c.getTitle())
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        return ProfessorDetailDto.builder()
+                .name(p.getName())
+                .college(p.getCollege())
+                .department(p.getDepartment().getOriginalName())
+                .professorId(p.getId())
+                .professorTier(p.getTier())
+                .courseCount(offeredCourses.size())
+                .position(p.getPosition())
+                .offeredCourses(offeredCourses)
+                .build();
+
     }
 }

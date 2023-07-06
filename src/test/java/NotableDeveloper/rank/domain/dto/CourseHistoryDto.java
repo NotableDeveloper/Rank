@@ -11,6 +11,7 @@ import lombok.Setter;
 @Setter
 public class CourseHistoryDto {
     Long courseId;
+    String title;
     int year;
     Semester semester;
     Tier tier;

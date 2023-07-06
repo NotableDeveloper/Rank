@@ -1,6 +1,9 @@
 package NotableDeveloper.rank.test.service.ProfessorService;
 
+import NotableDeveloper.rank.domain.dto.CourseHistoryDto;
+import NotableDeveloper.rank.domain.dto.ProfessorDetailDto;
 import NotableDeveloper.rank.domain.dto.ProfessorDto;
+import NotableDeveloper.rank.domain.entity.Course;
 import NotableDeveloper.rank.domain.entity.CourseProfessor;
 import NotableDeveloper.rank.domain.entity.Professor;
 import NotableDeveloper.rank.domain.exceptiion.ProfessorNotFoundException;
@@ -147,4 +150,70 @@ public class ProfessorServiceTest {
             Assertions.assertEquals(excepted.getTier(), find.getTier());
         }
     }
+
+    @Test
+    @DisplayName("교수의 아이디로 검색할 때, 결과가 없다면 예외가 발생한다.")
+    void 교수_아이디_검색_실패_테스트(){
+        Long professorId = 9999L;
+
+        Mockito.when(courseProfessorRepository.findAllByProfessor_Id(professorId))
+                .thenReturn(new ArrayList<>());
+
+        Assertions.assertThrows(ProfessorNotFoundException.class,
+                () -> professorService.getProfessorById(professorId));
+    }
+
+    @Test
+    @DisplayName("교수의 아이디로 검색할 때, 결과가 올바른 지를 검증한다.")
+    void 교수_아이디_검색_성공_테스트(){
+        Long professorId = 1L;
+
+        ArrayList<CourseProfessor> cpByProfessorId = (ArrayList<CourseProfessor>)
+                rankData.getCourseProfessors().stream()
+                .filter(cp -> cp.getProfessor().getId().equals(professorId))
+                .collect(Collectors.toList());
+
+        List<CourseHistoryDto> history = cpByProfessorId.stream()
+                .map(cp -> {
+                    Course c = cp.getCourse();
+
+                    return CourseHistoryDto.builder()
+                            .title(c.getTitle())
+                            .year(c.getOfferedYear())
+                            .semester(c.getSemester())
+                            .courseId(c.getId())
+                            .tier(c.getTier())
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        Professor p = cpByProfessorId.get(0).getProfessor();
+
+        ProfessorDetailDto exceptedProfessor = ProfessorDetailDto.builder()
+                .offeredCourses(history)
+                .professorTier(p.getTier())
+                .name(p.getName())
+                .position(p.getPosition())
+                .courseCount(history.size())
+                .college(p.getCollege())
+                .professorId(p.getId())
+                .department(p.getDepartment().getOriginalName())
+                .build();
+
+        Mockito.when(courseProfessorRepository.findAllByProfessor_Id(professorId))
+                .thenReturn(cpByProfessorId);
+
+        ProfessorDetailDto findProfessor = professorService.getProfessorById(professorId);
+
+        Assertions.assertEquals(exceptedProfessor.getProfessorId(), findProfessor.getProfessorId());
+        Assertions.assertEquals(exceptedProfessor.getName(), findProfessor.getName());
+
+        for(int i = 0; i < history.size(); i++){
+            CourseHistoryDto excepted = history.get(i);
+            CourseHistoryDto find = findProfessor.getOfferedCourses().get(i);
+
+            Assertions.assertEquals(excepted.getCourseId(), find.getCourseId());
+        }
+    }
 }
+
