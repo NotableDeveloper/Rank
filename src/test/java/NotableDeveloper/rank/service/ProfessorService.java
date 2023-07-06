@@ -6,11 +6,13 @@ import NotableDeveloper.rank.domain.dto.ProfessorDto;
 import NotableDeveloper.rank.domain.entity.Course;
 import NotableDeveloper.rank.domain.entity.CourseProfessor;
 import NotableDeveloper.rank.domain.entity.Professor;
+import NotableDeveloper.rank.domain.enums.Tier;
 import NotableDeveloper.rank.domain.exceptiion.ProfessorNotFoundException;
 import NotableDeveloper.rank.repository.CourseProfessorRepository;
 import NotableDeveloper.rank.repository.ProfessorRepository;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.domain.Sort;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -87,5 +89,24 @@ public class ProfessorService {
                 .offeredCourses(offeredCourses)
                 .build();
 
+    }
+
+    public ArrayList<ProfessorDto> getHonorProfessors(){
+        ArrayList<ProfessorDto> honors = new ArrayList<>();
+        professorRepository.findAllByTierNot(Tier.U,
+                Sort.by(Sort.Direction.DESC, "average"))
+                .forEach(professor -> {
+                    if(honors.size() < 10 && professor.getCount() >= 15)
+                        honors.add(ProfessorDto.builder()
+                                .tier(professor.getTier())
+                                .name(professor.getName())
+                                .department(professor.getDepartment().getOriginalName())
+                                .position(professor.getPosition())
+                                .professorId(professor.getId())
+                                .build());
+                        }
+                );
+
+        return honors;
     }
 }
