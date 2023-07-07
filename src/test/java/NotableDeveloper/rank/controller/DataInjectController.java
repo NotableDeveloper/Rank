@@ -2,19 +2,21 @@ package NotableDeveloper.rank.controller;
 
 import NotableDeveloper.rank.domain.request.EvaluateRequest;
 import NotableDeveloper.rank.service.SimpleInjectService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/data")
+@Getter
+@Setter
 public class DataInjectController {
-    private SimpleInjectService injectService;
+    @Autowired
+    SimpleInjectService injectService;
 
     @PutMapping("/evaluates")
-    void updateEvaluates(@RequestBody EvaluateRequest request){
-        String response = "Year : " + request.getYear() + "Semester" + request.getSemester();
+    void saveEvaluates(@RequestBody EvaluateRequest request){
+        injectService.saveEvaluates(request.getYear(), request.getSemester());
     }
 }
