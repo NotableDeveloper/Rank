@@ -13,16 +13,13 @@ import NotableDeveloper.rank.domain.request.GetCourseResponse;
 import NotableDeveloper.rank.domain.response.GetCoursesResponse;
 import NotableDeveloper.rank.service.CourseService;
 import NotableDeveloper.rank.test.data.RankData;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -48,16 +45,22 @@ public class CourseControllerTest {
     static RankData data = new RankData();
 
     @Test
-    void 강의명_검색_실패_테스트() throws Exception {
+    void 강의_검색_실패_테스트() throws Exception {
         String title = "!@#$";
+        int courseId = 0;
 
         doThrow(CourseNotFoundException.class).when(courseService).getCourseByTitle(title);
+        doThrow(CourseNotFoundException.class).when(courseService).getCourseById((long) courseId);
 
         mockMvc.perform(get("/course")
                         .param("title", title))
                 .andExpect(status().isInternalServerError());
 
+        mockMvc.perform(get("/course/{courseId}", courseId))
+                .andExpect(status().isInternalServerError());
+
         verify(courseService).getCourseByTitle(title);
+        verify(courseService).getCourseById((long) courseId);
     }
 
     @Test
