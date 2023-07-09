@@ -5,10 +5,13 @@ import NotableDeveloper.rank.domain.enums.Semester;
 import NotableDeveloper.rank.domain.request.DepartmentShortenRequest;
 import NotableDeveloper.rank.domain.request.EvaluateRequest;
 import NotableDeveloper.rank.domain.request.TierUpdateRequest;
+import NotableDeveloper.rank.repository.RankVersionRepository;
 import NotableDeveloper.rank.service.SimpleInjectService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -90,5 +93,23 @@ public class DataInjectControllerTest {
                 .andExpect(status().isOk());
 
         verify(injectService).updateCourses(eq(2023), eq(Semester.FIRST));
+    }
+
+    @Test
+    void 교수_등급부여_테스트() throws Exception {
+        TierUpdateRequest request = new TierUpdateRequest();
+        request.setYear(2023);
+        request.setSemester(Semester.FIRST);
+
+        String requestBody = objectMapper.writeValueAsString(request);
+
+        doNothing().when(injectService).updateProfessors(anyInt(), any(Semester.class));
+
+        mockMvc.perform(put("/data/professors")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+                .andExpect(status().isOk());
+
+        verify(injectService).updateProfessors(eq(2023), eq(Semester.FIRST));
     }
 }

@@ -31,4 +31,9 @@ public class DataInjectController {
     void updateCourses(@RequestBody TierUpdateRequest request){
         injectService.updateCourses(request.getYear(), request.getSemester());
     }
+
+    @PutMapping("/professors")
+    void updateProfessor(@RequestBody TierUpdateRequest request){
+        injectService.updateProfessors(request.getYear(), request.getSemester());
+    }
 }
