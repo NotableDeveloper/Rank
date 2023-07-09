@@ -3,6 +3,7 @@ package NotableDeveloper.rank.test.controller;
 import NotableDeveloper.rank.controller.DataInjectController;
 import NotableDeveloper.rank.domain.enums.Semester;
 import NotableDeveloper.rank.domain.request.DepartmentShortenRequest;
+import NotableDeveloper.rank.domain.request.EvaluateRequest;
 import NotableDeveloper.rank.service.SimpleInjectService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,9 +31,14 @@ public class DataInjectControllerTest {
     @MockBean
     SimpleInjectService injectService;
 
+    static ObjectMapper objectMapper = new ObjectMapper();
     @Test
     void 강의평가_데이터_주입_테스트() throws Exception{
-        String requestBody = "{\"year\": 2023, \"semester\": \"FIRST\"}";
+        EvaluateRequest request = new EvaluateRequest();
+        request.setYear(2023);
+        request.setSemester(Semester.FIRST);
+        String requestBody = objectMapper.writeValueAsString(request);
+
         doNothing().when(injectService).saveEvaluates(anyInt(), any(Semester.class));
 
         mockMvc.perform(put("/data/evaluates")
@@ -45,7 +51,6 @@ public class DataInjectControllerTest {
 
     @Test
     void 학과축약이름_갱신_테스트() throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
         DepartmentShortenRequest request = new DepartmentShortenRequest();
         request.setYear(2023);
         request.setSemester(Semester.FIRST);
