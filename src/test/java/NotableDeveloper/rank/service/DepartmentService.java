@@ -1,7 +1,6 @@
 package NotableDeveloper.rank.service;
 
 import NotableDeveloper.rank.domain.dto.DepartmentDto;
-import NotableDeveloper.rank.domain.entity.Department;
 import NotableDeveloper.rank.repository.DepartmentRepository;
 import lombok.Getter;
 import lombok.Setter;
