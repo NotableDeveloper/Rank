@@ -2,6 +2,7 @@ package NotableDeveloper.rank.controller;
 
 import NotableDeveloper.rank.domain.request.DepartmentShortenRequest;
 import NotableDeveloper.rank.domain.request.EvaluateRequest;
+import NotableDeveloper.rank.domain.request.TierUpdateRequest;
 import NotableDeveloper.rank.service.SimpleInjectService;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,5 +25,10 @@ public class DataInjectController {
     @PutMapping("/department")
     void updateShortenDepartment(@RequestBody DepartmentShortenRequest request){
         injectService.updateDepartments(request.getYear(), request.getSemester());
+    }
+
+    @PutMapping("/courses")
+    void updateCourses(@RequestBody TierUpdateRequest request){
+        injectService.updateCourses(request.getYear(), request.getSemester());
     }
 }

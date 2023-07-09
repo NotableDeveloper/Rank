@@ -4,6 +4,7 @@ import NotableDeveloper.rank.controller.DataInjectController;
 import NotableDeveloper.rank.domain.enums.Semester;
 import NotableDeveloper.rank.domain.request.DepartmentShortenRequest;
 import NotableDeveloper.rank.domain.request.EvaluateRequest;
+import NotableDeveloper.rank.domain.request.TierUpdateRequest;
 import NotableDeveloper.rank.service.SimpleInjectService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -41,7 +43,7 @@ public class DataInjectControllerTest {
 
         doNothing().when(injectService).saveEvaluates(anyInt(), any(Semester.class));
 
-        mockMvc.perform(put("/data/evaluates")
+        mockMvc.perform(post("/data/evaluates")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
                 .andExpect(status().isOk());
@@ -70,5 +72,23 @@ public class DataInjectControllerTest {
                 .andExpect(status().isOk());
 
         verify(injectService).updateDepartments(eq(2023), eq(Semester.FIRST));
+    }
+
+    @Test
+    void 강의_등급부여_테스트() throws Exception {
+        TierUpdateRequest request = new TierUpdateRequest();
+        request.setYear(2023);
+        request.setSemester(Semester.FIRST);
+
+        String requestBody = objectMapper.writeValueAsString(request);
+
+        doNothing().when(injectService).updateCourses(anyInt(), any(Semester.class));
+
+        mockMvc.perform(put("/data/courses")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+                .andExpect(status().isOk());
+
+        verify(injectService).updateCourses(eq(2023), eq(Semester.FIRST));
     }
 }
