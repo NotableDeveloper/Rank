@@ -4,12 +4,14 @@ import NotableDeveloper.rank.domain.dto.DepartmentDto;
 import NotableDeveloper.rank.repository.DepartmentRepository;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Getter
 @Setter
+@Service
 public class DepartmentService {
     DepartmentRepository departmentRepository;
 

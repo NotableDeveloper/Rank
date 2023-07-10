@@ -9,7 +9,7 @@ import NotableDeveloper.rank.domain.entity.Course;
 import NotableDeveloper.rank.domain.entity.CourseProfessor;
 import NotableDeveloper.rank.domain.entity.Professor;
 import NotableDeveloper.rank.domain.exceptiion.CourseNotFoundException;
-import NotableDeveloper.rank.domain.request.GetCourseResponse;
+import NotableDeveloper.rank.domain.response.GetCourseResponse;
 import NotableDeveloper.rank.domain.response.GetCoursesResponse;
 import NotableDeveloper.rank.service.CourseService;
 import NotableDeveloper.rank.test.data.RankData;

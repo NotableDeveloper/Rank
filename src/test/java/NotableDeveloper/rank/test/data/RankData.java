@@ -55,6 +55,7 @@ public class RankData {
                 .build();
 
         computer.setId(1L);
+        computer.setShortenedName("컴퓨터");
 
         Department soft = Department.builder()
                 .college("IT대학")
@@ -62,6 +63,7 @@ public class RankData {
                 .build();
 
         soft.setId(2L);
+        soft.setShortenedName("소프트");
 
         departments.add(computer);
         departments.add(soft);
