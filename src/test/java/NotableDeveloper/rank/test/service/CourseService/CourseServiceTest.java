@@ -1,6 +1,9 @@
 package NotableDeveloper.rank.test.service.CourseService;
 
-import NotableDeveloper.rank.domain.dto.*;
+import NotableDeveloper.rank.domain.dto.CourseDetailDto;
+import NotableDeveloper.rank.domain.dto.CourseDto;
+import NotableDeveloper.rank.domain.dto.CourseHistoryDto;
+import NotableDeveloper.rank.domain.dto.ProfessorDto;
 import NotableDeveloper.rank.domain.entity.Course;
 import NotableDeveloper.rank.domain.entity.CourseProfessor;
 import NotableDeveloper.rank.domain.entity.Professor;

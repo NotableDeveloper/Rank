@@ -1,6 +1,6 @@
 package NotableDeveloper.rank.controller;
 
-import NotableDeveloper.rank.domain.request.GetCourseResponse;
+import NotableDeveloper.rank.domain.response.GetCourseResponse;
 import NotableDeveloper.rank.domain.response.GetCoursesResponse;
 import NotableDeveloper.rank.service.CourseService;
 import com.fasterxml.jackson.databind.ObjectMapper;

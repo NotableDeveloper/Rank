@@ -5,7 +5,6 @@ import NotableDeveloper.rank.domain.dto.DepartmentDto;
 import NotableDeveloper.rank.domain.response.GetDepartmentsResponse;
 import NotableDeveloper.rank.service.DepartmentService;
 import NotableDeveloper.rank.test.data.RankData;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

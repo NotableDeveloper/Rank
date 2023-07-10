@@ -1,4 +1,4 @@
-package NotableDeveloper.rank.domain.request;
+package NotableDeveloper.rank.domain.response;
 
 import NotableDeveloper.rank.domain.dto.CourseDetailDto;
 import lombok.AllArgsConstructor;

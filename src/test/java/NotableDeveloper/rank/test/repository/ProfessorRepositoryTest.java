@@ -9,8 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 
 @DataJpaTest
 public class ProfessorRepositoryTest {
@@ -32,7 +30,6 @@ public class ProfessorRepositoryTest {
 
     @Test
     @DisplayName("한 명의 교수를 DB에 등록한다.")
-    @Transactional
     void 교수_정상등록_테스트(){
         Professor professor = data.getProfessors().get(0);
         Professor savedProfessor = professorRepository.save(professor);

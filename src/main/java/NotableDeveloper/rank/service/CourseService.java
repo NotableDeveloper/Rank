@@ -9,12 +9,14 @@ import NotableDeveloper.rank.repository.CourseProfessorRepository;
 import NotableDeveloper.rank.repository.CourseRepository;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
+@Service
 public class CourseService {
     CourseProfessorRepository courseProfessorRepository;
     CourseRepository courseRepository;
