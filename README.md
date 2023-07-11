@@ -8,3 +8,6 @@ Rank는 교내에서 개설되는 학부 강의와 해당 강의를 담당하는
   - Spring boot
   - Junit5
   - JPA
+
+- Requirement
+  - https://www.notion.so/Requirement-c2b793ce809c47d586e52abcd85e6302
